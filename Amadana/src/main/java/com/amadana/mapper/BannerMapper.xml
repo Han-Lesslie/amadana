@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.amadana.dao.BannerMapper">
+    <resultMap type="com.amadana.entity.Banner" id="bannerMapper">
+        <id column="id" property="id"/>
+        <result column="image_name" property="bannerName"/>
+        <result column="img_position" property="bannerPosition"/>
+        <result column="img" property="bannerUrl"/>
+        <result column="link_type" property="linkeType"/>
+        <result column="jump_link" property="jumpLink"/>
+        <result column="link_way" property="linkWay"/>
+        <result column="img_order" property="order"/>
+        <result column="createTime" property="createTime"/>
+        <result column="updateTime" property="updateTime"/>
+    </resultMap>
+    <!-- 添加图片   -->
+    <insert id="save" parameterType="com.amadana.entity.Banner" useGeneratedKeys="true" >
+        insert into tb_images(image_name,img_position,img,link_type,jump_link,link_way,img_order
+        ,createTime)
+        values(#{bannerName},#{bannerPosition},#{bannerUrl},#{linkeType},#{jumpLink}
+        ,#{linkWay},#{order},#{createTime})
+    </insert>
+    <!--  图片分页  -->
+    <select id="findAll" parameterType="int" resultMap="bannerMapper">
+        select id,img_position,image_name,img,link_type,jump_link,link_way,
+         img_order from tb_images where status = 1 order by img_order
+    </select>
+    <!--    删除图片-->
+    <update id="delete" parameterType="int">
+        update tb_images set status = 0 where id = #{id}
+    </update>
+
+    <select id="searchByImgPosition" parameterType="java.lang.String" resultMap="bannerMapper">
+        select id,img_position,image_name,img, link_type,jump_link,link_way,
+        img_order from tb_images where status = 1
+        and img_position like '%${ImgPosition}%' order by img_order
+    </select>
+
+    <update id="update" parameterType="com.amadana.entity.Banner">
+        update tb_images set
+        <if test="bannerName != null and bannerName != ''">
+            image_name = #{bannerName} ,
+        </if>
+        <if test="bannerPosition != null and bannerPosition != ''">
+            img_position = #{bannerPosition} ,
+        </if>
+        <if test="bannerUrl != null and bannerUrl != ''">
+            img = #{bannerUrl} ,
+        </if>
+        <if test="linkeType != null and linkeType != ''">
+            link_type = #{linkeType} ,
+        </if>
+        <if test="jumpLink != null and jumpLink != ''">
+            jump_link = #{jumpLink} ,
+        </if>
+        <if test="linkWay != null and linkWay != ''">
+            link_way = #{linkWay} ,
+        </if>
+        <if test="order != null and order != ''">
+            img_order = #{order} ,
+        </if>
+        <if test="updateTime != null and updateTime != ''">
+            updateTime = #{updateTime}
+        </if>
+        where status = 1 and id = #{id}
+    </update>
+</mapper>
