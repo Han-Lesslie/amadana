@@ -29,10 +29,4 @@ public class AmadanaApplication extends SpringBootServletInitializer {
         return builder.sources(AmadanaApplication.class);
     }
 
-    /*@Bean
-    MultipartConfigElement multipartConfigElement() {
-        MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setLocation("C:\\Users\\LENOVO\\Desktop\\myproject\\static");
-        return factory.createMultipartConfig();
-    }*/
 }

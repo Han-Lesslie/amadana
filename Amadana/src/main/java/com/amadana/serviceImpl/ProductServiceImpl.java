@@ -6,11 +6,16 @@ import com.amadana.dao.ProductMapper;
 import com.amadana.entity.Category;
 import com.amadana.entity.Product;
 import com.amadana.entity.ProductDetail;
+import com.amadana.enums.StateCode;
+import com.amadana.result.Expection;
 import com.amadana.service.FileUploadService;
 import com.amadana.service.ProductService;
+import com.amadana.utils.CommonUtil;
 import com.amadana.utils.DateFormat;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,23 +37,43 @@ public class ProductServiceImpl implements ProductService {
     private ProductDetailMapper productDetailMapper;
     @Autowired
     private FileUploadService fileUploadService;
+
+    private final static Logger LOGGER =  LoggerFactory.getLogger(ProductServiceImpl.class);
     @Override
     public boolean saveProduct(Product product) {
         if (null == product || null == product.getCategory() || null == product.getCategory().getCategoryName()
         || null == product.getProductDetails()) {
             return false;
         }
+
+        if (CommonUtil.isNull(product.getProductIcon()) || CommonUtil.isNull(product.getProductImg())
+        || CommonUtil.isNull(product.getDisplayImg())){return false;}else{
+            //将字符串分成数组
+            String[] d = product.getProductIcon().split("base64,");
+            String[] d1 = product.getProductImg().split("base64,");
+            String[] d2 = product.getDisplayImg().split("base64,");
+            if(d == null || d.length != 2) {
+                return false;
+            }
+            if(d1 == null || d1.length != 2) {
+                return false;
+            }
+            if(d2 == null || d2.length != 2) {
+                return false;
+            }
+        }
+
         try {
             List<Category> categories = categoryMapper.findCategoryByName(product.getCategory().getCategoryName());
 
             if (categories.size() != 0) {
+
                 Category category = categories.get(0);
+                LOGGER.info("product:{}",product);
                 product.setCreateTime(DateFormat.dateFormat(new Date()));
                 product.setCategory(category);
+
                 List<String> imgs = fileUploadService.getFileNames();
-                product.setProductIcon(imgs.get(0));
-                product.setProductImg(imgs.get(1));
-                product.setDisplayImg(imgs.get(2));
                 int count = productMapper.save(product);
 
                 // 插入产品，成功了再插入产品详情
@@ -57,11 +82,10 @@ public class ProductServiceImpl implements ProductService {
                     // 设置产品的id
                     pro.setId(product.getId());
                     List<ProductDetail> productDetails = product.getProductDetails();
-                    List<String> fileNames = fileUploadService.getFileNames();
+                    //List<String> fileNames = fileUploadService.getFileNames();
                     // 设置产品详情url以及对应的产品
                     for (int i=0;i<productDetails.size();i++) {
                         productDetails.get(i).setProduct(pro);
-                        productDetails.get(i).setDetailImg(fileNames.get(i));
                         productDetails.get(i).setCreateTime(DateFormat.dateFormat(new Date()));
                     }
                     // 批量插入产品详情

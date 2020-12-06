@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
+@CrossOrigin(origins = "*", maxAge = 36000)
 @Api(tags = "产品接口")
 @RestController
 @RequestMapping("/api")
@@ -39,6 +40,7 @@ public class ProductController {
         String token = request.getHeader("token");
         boolean isExpire = isExpire(token);
         LOGGER.info("product ==================== >>> {}",product);
+
         if (!isExpire) {
             redisUtils.setExpire(token,token, Constant.EXPIRE_TIME);
             boolean flag = productService.saveProduct(product);
@@ -67,7 +69,6 @@ public class ProductController {
             if (null == pageInfo) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
             }else {
-                LOGGER.info("detail:{}",pageInfo.getList().get(1));
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(), (int) pageInfo.getTotal(),pageInfo.getList());
             }
         }else {
@@ -80,6 +81,7 @@ public class ProductController {
     public ResponseResult deletProduct(@ApiParam("产品信息")@RequestBody Product product,HttpServletRequest request,HttpServletResponse response) {
         String token  = request.getHeader("token");
         boolean isExpire = isExpire(token);
+
         if(!isExpire) {
             redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
             boolean result = productService.deleteProuct(product);
@@ -99,10 +101,10 @@ public class ProductController {
     public ResponseResult findByProductId(@ApiParam("产品ID")@RequestParam("id") Integer id,HttpServletRequest request,HttpServletResponse response) {
         String token = request.getHeader("token");
         boolean isExpire = isExpire(token);
+
         if (!isExpire) {
             redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
             List<Product> products = productService.findByProductId(id);
-            LOGGER.info("products:{}",products.size());
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),products);
         }else {
             return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
@@ -117,12 +119,10 @@ public class ProductController {
         boolean isExpire = isExpire(token);
         if (!isExpire) {
             redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
-            LOGGER.info("map:{}",map);
             int currentPage = (int) map.get("currentPage");
             int pageSize = (int) map.get("pageSize");
 
             PageInfo pageInfo = productService.search(map,currentPage,pageSize);
-            LOGGER.info("result:{}",pageInfo.getList());
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(), (int) pageInfo.getTotal(),pageInfo.getList());
         }else {
             return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());

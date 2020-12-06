@@ -32,6 +32,16 @@ public class BannerServiceImpl implements BannerService {
         if (banner == null) {
             return new Expection(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }
+
+        if (null == banner.getBannerUrl() || "".equals(banner.getBannerUrl())) {
+            return new Expection(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
+        }else {
+            //将字符串分成数组
+            String[] d = banner.getBannerUrl().split("base64,");
+            if(d == null || d.length != 2) {
+                return new Expection(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
+            }
+        }
         LOGGER.info("banner:{}",banner);
         banner.setCreateTime(DateFormat.dateFormat(new Date()));
         int count = 0;

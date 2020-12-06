@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@CrossOrigin(origins = "*", maxAge = 36000)
 @Api(tags = "产品分类接口")
 @RestController
 @RequestMapping("/api")

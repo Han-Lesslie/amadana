@@ -21,6 +21,8 @@ public class Banner implements Serializable {
     private String bannerPosition;
     /**图片位置 存储位置*/
     private String bannerUrl;
+    //图片名称
+    private String imgName;
     /**链接类型*/
     private String linkeType;
     /**跳转链接*/

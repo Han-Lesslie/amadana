@@ -9,8 +9,11 @@
         <result column="product_name" property="productName"/>
         <result column="product_desc" property="productDesc"/>
         <result column="product_icon" property="productIcon"/>
+        <result column="iconName" property="iconName"/>
         <result column="product_img" property="productImg"/>
+        <result column="productImgName" property="productImgName"/>
         <result column="display_img" property="displayImg"/>
+        <result column="displayName" property="displayName"/>
         <result column="price" property="price"/>
         <result column="product_number" property="productNumber"/>
         <result column="product_model"  property="productModel"/>
@@ -33,6 +36,7 @@
                     column="product_id">
             <id column="pid" property="id" javaType="int" jdbcType="INTEGER"/>
             <result column="detail_img" property="detailImg" javaType="string" jdbcType="VARCHAR"/>
+            <result column="detailName" property="detailName" javaType="string" jdbcType="VARCHAR"/>
             <result column="img_name" property="imgName" javaType="string" jdbcType="VARCHAR"/>
             <result column="img_desc" property="imgDesc" javaType="string" jdbcType="VARCHAR"/>
             <result column="detail_link" property="detailLink" javaType="string" jdbcType="VARCHAR"/>
@@ -43,9 +47,9 @@
     </resultMap>
 
     <sql id="base">
-        select p.id,p.product_name,p.product_desc,p.product_icon,p.product_img,
-        p.display_img,p.price,p.product_number,p.product_model,p.createTime,
-        c.category_name, pd.pid,pd.detail_img,pd.img_name,pd.img_desc,pd.detail_link
+        select p.id,p.product_name,p.product_desc,p.product_icon,p.iconName,p.product_img,p.productImgName,
+        p.display_img,p.displayName,p.price,p.product_number,p.product_model,p.createTime,
+        c.category_name, pd.pid,pd.detail_img,pd.detailName,pd.img_name,pd.img_desc,pd.detail_link
         from tb_product as p left join tb_category as c on p.category_id = c.id
         left join tb_product_detail as pd on p.id = pd.product_id where p.status = 1
     </sql>
@@ -54,11 +58,11 @@
         <selectKey resultType="int" order="AFTER" keyProperty="id">
             select LAST_INSERT_ID() AS id
         </selectKey>
-        insert into tb_product (product_name,product_desc,product_icon,product_img,
-        display_img,price,product_number,product_model,createTime,category_id)
+        insert into tb_product (product_name,product_desc,product_icon,iconName,product_img,productImgName,
+        display_img,displayName,price,product_number,product_model,createTime,category_id)
         values(
-        #{productName},#{productDesc},#{productIcon},#{productImg},#{displayImg},
-        #{price},#{productNumber},#{productModel},#{createTime},#{category.id})
+        #{productName},#{productDesc},#{productIcon},#{iconName},#{productImg},#{productImgName},#{displayImg},
+        #{displayName},#{price},#{productNumber},#{productModel},#{createTime},#{category.id})
     </insert>
 
     <select id="findAll" resultMap="productMapper">

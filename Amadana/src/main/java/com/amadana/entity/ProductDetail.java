@@ -23,6 +23,8 @@ public class ProductDetail implements Serializable {
      * 详情图片
      */
     private String detailImg;
+    //图片显示名称
+    private String detailName;
     /**
      * 图片名称
      */

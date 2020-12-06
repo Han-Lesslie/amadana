@@ -25,7 +25,7 @@ import java.util.List;
 @RequestMapping("/api")
 @Api(tags = "文章接口")
 //设置跨域请求源
-//@CrossOrigin(origins = "http://localhost:8088", maxAge = 36000)
+@CrossOrigin(origins = "*", maxAge = 36000)
 public class ArticleController {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ArticleController.class);

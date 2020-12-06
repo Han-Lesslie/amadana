@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 @Api(tags = "图片管理接口")
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "*", maxAge = 36000)
 public class BannerController {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(BannerController.class);

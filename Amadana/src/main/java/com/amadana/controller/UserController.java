@@ -22,7 +22,7 @@ import java.sql.SQLException;
 @RestController
 @RequestMapping("/api")
 //设置跨域请求源
-@CrossOrigin(origins = "http://localhost:8088", maxAge = 36000)
+@CrossOrigin(origins = "*", maxAge = 36000)
 @Api(tags = "用户登录注销相关接口")
 public class UserController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);

@@ -32,14 +32,24 @@ public class Product implements Serializable {
      * 产品Icon
      */
     private String productIcon;
+    /**icon图片名称*/
+    private String iconName;
     /**
      * 产品图片
      */
     private String productImg;
     /**
+     *产品图片名称
+     */
+    private String productImgName;
+    /**
      * 产品展示图片
      */
     private String displayImg;
+    /**
+     * 展示图片名称
+     */
+    private String displayName;
     /**
      * 产品价格
      */
