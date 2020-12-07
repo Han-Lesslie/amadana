@@ -54,6 +54,27 @@ public class ProductController {
         }
     }
 
+    @ApiOperation("更新产品")
+    @PostMapping("/updateProduct")
+    @UserLoginToken
+    public ResponseResult updateProduct(@ApiParam("产品信息") @RequestBody Product product, HttpServletRequest request, HttpServletResponse response) {
+        String token = request.getHeader("token");
+        boolean isExpire = isExpire(token);
+        LOGGER.info("product ==================== >>> {}",product);
+
+        if (!isExpire) {
+            redisUtils.setExpire(token,token, Constant.EXPIRE_TIME);
+            boolean flag = productService.updateProduct(product);
+            if (flag) {
+                return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
+            }else {
+                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
+            }
+        }else {
+            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+        }
+    }
+
     @ApiOperation("产品分页")
     @GetMapping("/findProduct")
     @UserLoginToken

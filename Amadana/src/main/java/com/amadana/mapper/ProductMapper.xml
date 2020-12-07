@@ -86,4 +86,47 @@
             and c.category_name like '%${categoryName}%'
         </if>
     </select>
+
+    <!--更新产品信息-->
+    <update id="update" parameterType="com.amadana.entity.Product" >
+        update tb_product set
+        <if test="productName != null and productName != ''">
+            product_name = #{productName},
+        </if>
+        <if test="productDesc != null and productDesc != ''">
+            product_desc = #{productDesc},
+        </if>
+        <if test="productIcon != null and productIcon != ''">
+            product_icon = #{productIcon},
+        </if>
+        <if test="iconName != null and iconName != ''">
+            iconName = #{iconName},
+        </if>
+        <if test="productImg != null and productImg != ''">
+            product_img = #{productImg},
+        </if>
+        <if test="productImgName != null and productImgName != ''" >
+            productImgName = #{productImgName},
+        </if>
+        <if test="displayImg != null and displayImg != ''">
+            display_img = #{displayImg},
+        </if>
+        <if test="displayName != null and displayName !=''">
+            displayName = #{displayName},
+        </if>
+        <if test="price != null and price != ''">
+            price = #{price},
+        </if>
+        <if test="productNumber != null and productNumber != ''">
+            product_number = #{productNumber},
+        </if>
+        <if test="productModel != null and productModel != ''">
+            product_model = #{productModel},
+        </if>
+        <if test="category.id != null and category.id != ''">
+            category_id = #{category.id},
+        </if>
+        updateTime = now()
+        where id = #{id}
+    </update>
 </mapper>

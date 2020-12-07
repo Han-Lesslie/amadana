@@ -41,27 +41,7 @@ public class ProductServiceImpl implements ProductService {
     private final static Logger LOGGER =  LoggerFactory.getLogger(ProductServiceImpl.class);
     @Override
     public boolean saveProduct(Product product) {
-        if (null == product || null == product.getCategory() || null == product.getCategory().getCategoryName()
-        || null == product.getProductDetails()) {
-            return false;
-        }
-
-        if (CommonUtil.isNull(product.getProductIcon()) || CommonUtil.isNull(product.getProductImg())
-        || CommonUtil.isNull(product.getDisplayImg())){return false;}else{
-            //将字符串分成数组
-            String[] d = product.getProductIcon().split("base64,");
-            String[] d1 = product.getProductImg().split("base64,");
-            String[] d2 = product.getDisplayImg().split("base64,");
-            if(d == null || d.length != 2) {
-                return false;
-            }
-            if(d1 == null || d1.length != 2) {
-                return false;
-            }
-            if(d2 == null || d2.length != 2) {
-                return false;
-            }
-        }
+        if (validateBase64(product)) return false;
 
         try {
             List<Category> categories = categoryMapper.findCategoryByName(product.getCategory().getCategoryName());
@@ -82,7 +62,6 @@ public class ProductServiceImpl implements ProductService {
                     // 设置产品的id
                     pro.setId(product.getId());
                     List<ProductDetail> productDetails = product.getProductDetails();
-                    //List<String> fileNames = fileUploadService.getFileNames();
                     // 设置产品详情url以及对应的产品
                     for (int i=0;i<productDetails.size();i++) {
                         productDetails.get(i).setProduct(pro);
@@ -150,5 +129,70 @@ public class ProductServiceImpl implements ProductService {
         PageHelper.startPage(currentPage,pageSize);
         List<Product> products = productMapper.search(map);
         return new PageInfo(products);
+    }
+
+    @Override
+    public boolean updateProduct(Product product) {
+        if (validateBase64(product)) return false;
+
+        try {
+            //List<Category> categories = categoryMapper.findCategoryByName(product.getCategory().getCategoryName());
+            Category category = product.getCategory();
+            if (null != category && null != category.getId()) {
+                LOGGER.info("product:{}",category);
+
+                //product.setCategory(category);
+
+                int count = productMapper.update(product);
+
+                // 更新产品，成功了再插入产品详情
+                if (count != 0) {
+                    Product pro = new Product();
+                    // 设置产品的id
+                    pro.setId(product.getId());
+                    List<ProductDetail> productDetails = product.getProductDetails();
+                    int result = 0;
+                    // 设置产品详情url以及对应的产品
+                    for (int i=0;i<productDetails.size();i++) {
+                        productDetails.get(i).setProduct(pro);
+                        //productDetails.get(i).setCreateTime(DateFormat.dateFormat(new Date()));
+                        // 批量更新产品详情
+                        result = productDetailMapper.update(productDetails.get(i));
+                    }
+                    return result == 0 ? false : true;
+                }
+            }
+            return false;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean validateBase64(Product product) {
+        if (null == product || null == product.getCategory() || null == product.getCategory().getCategoryName()
+                || null == product.getProductDetails()) {
+            return true;
+        }
+
+        if (CommonUtil.isNull(product.getProductIcon()) || CommonUtil.isNull(product.getProductImg())
+                || CommonUtil.isNull(product.getDisplayImg())){
+            return true;
+        }else{
+            //将字符串分成数组
+            String[] d = product.getProductIcon().split("base64,");
+            String[] d1 = product.getProductImg().split("base64,");
+            String[] d2 = product.getDisplayImg().split("base64,");
+            if(d == null || d.length != 2) {
+                return true;
+            }
+            if(d1 == null || d1.length != 2) {
+                return true;
+            }
+            if(d2 == null || d2.length != 2) {
+                return true;
+            }
+        }
+        return false;
     }
 }

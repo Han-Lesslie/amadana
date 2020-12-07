@@ -16,4 +16,6 @@ public interface ProductService {
     List<Product> findByProductId(Integer id);
 
     PageInfo search(Map<String,Object> map,int currentPage,int pageSize);
+
+    boolean updateProduct(Product product);
 }

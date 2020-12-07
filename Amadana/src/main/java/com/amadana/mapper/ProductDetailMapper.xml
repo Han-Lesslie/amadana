@@ -50,4 +50,25 @@
     <update id="delete" parameterType="int">
         update  tb_product_detail set status = 0 where product_id = #{id}
     </update>
+
+    <!--更新产品详情信息-->
+    <update id="update" parameterType="com.amadana.entity.ProductDetail">
+        update  tb_product_detail set
+        <if test="detailImg != null and detailImg != ''">
+            detail_img = #{detailImg},
+        </if>
+        <if test="detailName != null and detailName !=''">
+            detailName = #{detailName},
+        </if>
+        <if test="imgName != null and imgName != ''">
+            img_name = #{imgName},
+        </if>
+        <if test="imgDesc != null and imgDesc != ''">
+            img_desc = #{imgDesc},
+        </if>
+        <if test="detailLink != null and detailLink !=''">
+            detail_link = #{detailLink},
+        </if>
+        updateTime = now() where product_id = #{product.id} and pid = #{id}
+    </update>
 </mapper>
