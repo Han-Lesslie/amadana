@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.amadana.dao.ProductMapper">
+    <resultMap type="com.amadana.entity.Product" id="productMapper">
+        <id column="id" property="id"/>
+        <result column="product_name" property="productName"/>
+        <result column="product_desc" property="productDesc"/>
+        <result column="product_icon" property="productIcon"/>
+        <result column="iconName" property="iconName"/>
+        <result column="product_img" property="productImg"/>
+        <result column="productImgName" property="productImgName"/>
+        <result column="display_img" property="displayImg"/>
+        <result column="displayName" property="displayName"/>
+        <result column="price" property="price"/>
+        <result column="product_number" property="productNumber"/>
+        <result column="product_model"  property="productModel"/>
+        <result column="status" property="status"/>
+        <result column="createTime" property="createTime"/>
+        <result column="updateTime" property="updateTime"/>
+
+        <!--   多对一配置     -->
+        <association property="category" javaType="com.amadana.entity.Category">
+            <id column="id" property="id"/>
+            <result column="category_name" property="categoryName"/>
+            <result column="status" property="status"/>
+            <result column="category_order" property="order"/>
+            <result column="createTime" property="createTime"/>
+            <result column="updateTime" property="updateTime"/>
+        </association>
+
+        <!--  一对多配置      -->
+        <collection property="productDetails" ofType="com.amadana.entity.ProductDetail"
+                    column="product_id">
+            <id column="pid" property="id" javaType="int" jdbcType="INTEGER"/>
+            <result column="detail_img" property="detailImg" javaType="string" jdbcType="VARCHAR"/>
+            <result column="detailName" property="detailName" javaType="string" jdbcType="VARCHAR"/>
+            <result column="img_name" property="imgName" javaType="string" jdbcType="VARCHAR"/>
+            <result column="img_desc" property="imgDesc" javaType="string" jdbcType="VARCHAR"/>
+            <result column="detail_link" property="detailLink" javaType="string" jdbcType="VARCHAR"/>
+            <result column="status" property="status" javaType="int" jdbcType="INTEGER"/>
+            <result column="createTime" property="createTime" javaType="string" jdbcType="DATE"/>
+            <result column="updateTime" property="updateTime" javaType="string" jdbcType="DATE"/>
+        </collection>
+    </resultMap>
+
+    <sql id="base">
+        select p.id,p.product_name,p.product_desc,p.product_icon,p.iconName,p.product_img,p.productImgName,
+        p.display_img,p.displayName,p.price,p.product_number,p.product_model,p.createTime,
+        c.category_name, pd.pid,pd.detail_img,pd.detailName,pd.img_name,pd.img_desc,pd.detail_link
+        from tb_product as p left join tb_category as c on p.category_id = c.id
+        left join tb_product_detail as pd on p.id = pd.product_id where p.status = 1
+    </sql>
+    <insert id="save" parameterType="com.amadana.entity.Product" useGeneratedKeys="true" keyProperty="id">
+
+        <selectKey resultType="int" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID() AS id
+        </selectKey>
+        insert into tb_product (product_name,product_desc,product_icon,iconName,product_img,productImgName,
+        display_img,displayName,price,product_number,product_model,createTime,category_id)
+        values(
+        #{productName},#{productDesc},#{productIcon},#{iconName},#{productImg},#{productImgName},#{displayImg},
+        #{displayName},#{price},#{productNumber},#{productModel},#{createTime},#{category.id})
+    </insert>
+
+    <select id="findAll" resultMap="productMapper">
+        <include refid="base"></include>
+    </select>
+
+    <update id="delete" parameterType="com.amadana.entity.Product">
+        update tb_product set status = 0 where id = #{id}
+    </update>
+
+    <select id="findByProductId" parameterType="int" resultMap="productMapper">
+        <include refid="base"></include> and p.id = #{id}
+    </select>
+
+    <select id="search" parameterType="map" resultMap="productMapper">
+        <include refid="base"></include>
+        <if test="productName != null and productName != ''">
+            and p.product_name like '%${productName}%'
+        </if>
+        <if test="categoryName != null and categoryName != ''">
+            and c.category_name like '%${categoryName}%'
+        </if>
+    </select>
+
+    <!--更新产品信息-->
+    <update id="update" parameterType="com.amadana.entity.Product" >
+        update tb_product set
+        <if test="productName != null and productName != ''">
+            product_name = #{productName},
+        </if>
+        <if test="productDesc != null and productDesc != ''">
+            product_desc = #{productDesc},
+        </if>
+        <if test="productIcon != null and productIcon != ''">
+            product_icon = #{productIcon},
+        </if>
+        <if test="iconName != null and iconName != ''">
+            iconName = #{iconName},
+        </if>
+        <if test="productImg != null and productImg != ''">
+            product_img = #{productImg},
+        </if>
+        <if test="productImgName != null and productImgName != ''" >
+            productImgName = #{productImgName},
+        </if>
+        <if test="displayImg != null and displayImg != ''">
+            display_img = #{displayImg},
+        </if>
+        <if test="displayName != null and displayName !=''">
+            displayName = #{displayName},
+        </if>
+        <if test="price != null and price != ''">
+            price = #{price},
+        </if>
+        <if test="productNumber != null and productNumber != ''">
+            product_number = #{productNumber},
+        </if>
+        <if test="productModel != null and productModel != ''">
+            product_model = #{productModel},
+        </if>
+        <if test="category.id != null and category.id != ''">
+            category_id = #{category.id},
+        </if>
+        updateTime = now()
+        where id = #{id}
+    </update>
+</mapper>

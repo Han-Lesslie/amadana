@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.amadana.dao.ArticleMapper">
+    <resultMap type="com.amadana.entity.Article" id="articleMapper">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="author" property="author"/>
+        <result column="createDate" property="createDate"/>
+        <result column="updateDate" property="updateDate"/>
+        <result column="article_url" property="article_url"/>
+        <result column="content" property="content"/>
+        <result column="status" property="status"/>
+    </resultMap>
+    <insert id="saveArticle" parameterType="com.amadana.entity.Article" useGeneratedKeys="true" >
+        insert into tb_article(title,author,createDate,content) values (#{title},#{author},#{createDate},#{content})
+    </insert>
+    <select id="getArticleById" parameterType="int" resultMap="articleMapper">
+        select * from tb_article
+    </select>
+    <select id="findAll" resultMap="articleMapper">
+        select id,title,author,createDate,updateDate,article_url,content,status from tb_article where status = 1
+        order by createDate desc
+    </select>
+    <update id="update" parameterType="com.amadana.entity.Article">
+        update tb_article set
+        <if test="title != null and title != ''">
+            title = #{title},
+        </if>
+        <if test="author !=null and title != ''">
+            author = #{author},
+        </if>
+        <if test="updateDate != null and updateDate != ''">
+            updateDate = #{updateDate},
+        </if>
+        <if test="content != null and content != ''">
+            content = #{content}
+        </if>
+        where id = #{id} and status = 1
+    </update>
+    <update id="delete" parameterType="int">
+        update tb_article set status = 0 where id = #{id}
+    </update>
+</mapper>

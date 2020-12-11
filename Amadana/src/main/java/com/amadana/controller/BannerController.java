@@ -102,7 +102,7 @@ public class BannerController {
     @ApiOperation("图片搜索与分页")
     @GetMapping("/searchImg")
     @UserLoginToken
-    public Object searchByImgPosition(@ApiParam("当前页面")@RequestParam("currentPage")int currentPage,@ApiParam("页数")@RequestParam("pageSize") int pageSize,
+    public ResponseResult searchByImgPosition(@ApiParam("当前页面")@RequestParam("currentPage")int currentPage,@ApiParam("页数")@RequestParam("pageSize") int pageSize,
                                       @ApiParam("图片位置")@RequestParam("imgPosition") String imgPosition,HttpServletRequest request,HttpServletResponse response) {
 
         String token = request.getHeader("token");
@@ -118,6 +118,24 @@ public class BannerController {
         }
     }
 
+    @ApiOperation("根据id获取图片")
+    @GetMapping("/findBannerById")
+    @UserLoginToken
+    public ResponseResult findBannerById(@ApiParam("ID")@RequestParam("id") Integer id,HttpServletRequest request,HttpServletResponse response) {
+
+        String token = request.getHeader("token");
+        boolean isExpire = isExpire(token);
+
+        if (!isExpire) {
+            redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
+            Banner banner = bannerService.findBannerById(id);
+            return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),
+                    banner);
+        }else {
+            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+        }
+    }
+
     @ApiOperation("更新图片")
     @PostMapping("/updateBanner")
     @UserLoginToken
@@ -127,8 +145,7 @@ public class BannerController {
         boolean isExpire = isExpire(token);
         if (!isExpire) {
             redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
-            // 设置图片存储位置
-            //banner.setBannerUrl((String) fileUploadService.uploadPicture().get("path"));
+
             // 更新图片信息
             boolean flag = bannerService.update(banner);
             if (flag) {

@@ -110,4 +110,18 @@ public class BannerServiceImpl implements BannerService {
             return false;
         }
     }
+
+    @Override
+    public Banner findBannerById(Integer id) {
+        if(id == null) {
+            return null;
+        }
+        try {
+            Banner banner = bannerMapper.findBannerById(id);
+            return banner;
+        }catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

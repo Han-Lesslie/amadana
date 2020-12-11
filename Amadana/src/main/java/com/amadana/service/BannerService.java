@@ -13,4 +13,5 @@ public interface BannerService {
     boolean delete(Integer id);
     PageInfo searchByImgPosition(int currentPage,int pageSize,String imgPosition);
     boolean update(Banner banner);
+    Banner findBannerById(Integer id);
 }

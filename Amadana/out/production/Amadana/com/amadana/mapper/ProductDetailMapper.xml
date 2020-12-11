@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.amadana.dao.ProductDetailMapper">
+    <resultMap type="com.amadana.entity.ProductDetail" id="productDetailMapper">
+        <id column="pid" property="id"/>
+        <result column="detail_img" property="detailImg"/>
+        <result column="detailName" property="detailName"/>
+        <result column="img_name" property="imgName"/>
+        <result column="img_desc" property="imgDesc"/>
+        <result column="detail_link" property="detailLink"/>
+        <result column="status" property="status"/>
+        <result column="createDate" property="createTime"/>
+
+        <!--   多对一     -->
+        <association property="product" javaType="com.amadana.entity.Product">
+            <id column="id" property="id"/>
+            <result column="product_name" property="productName"/>
+            <result column="product_desc" property="productDesc"/>
+            <result column="product_icon" property="productIcon"/>
+            <result column="iconName" property="iconName"/>
+            <result column="product_img" property="productImg"/>
+            <result column="productImgName" property="productImgName"/>
+            <result column="display_img" property="displayImg"/>
+            <result column="displayName" property="displayName"/>
+            <result column="price" property="price"/>
+            <result column="product_number" property="productNumber"/>
+            <result column="product_model"  property="productModel"/>
+            <result column="status" property="status"/>
+            <result column="createTime" property="createTime"/>
+            <result column="updateTime" property="updateTime"/>
+        </association>
+    </resultMap>
+
+    <!-- 批量插入产品详情   -->
+    <insert id="batchSaveProductDetail" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="pid">
+        <selectKey keyProperty="pid" resultType="int" order="AFTER">
+            select LAST_INSERT_ID() as pid
+        </selectKey>
+
+        insert into tb_product_detail(detail_img,detailName,img_name,img_desc,detail_link,product_id,createTime)
+        values
+        <foreach collection="list" index="index" item="item" separator=",">
+            (#{item.detailImg},#{item.detailName},#{item.imgName},#{item.imgDesc},#{item.detailLink},#{item.product.id},#{item.createTime})
+        </foreach>
+    </insert>
+
+    <update id="delete" parameterType="int">
+        update  tb_product_detail set status = 0 where product_id = #{id}
+    </update>
+
+    <!--更新产品详情信息-->
+    <update id="update" parameterType="com.amadana.entity.ProductDetail">
+        update  tb_product_detail set
+        <if test="detailImg != null and detailImg != ''">
+            detail_img = #{detailImg},
+        </if>
+        <if test="detailName != null and detailName !=''">
+            detailName = #{detailName},
+        </if>
+        <if test="imgName != null and imgName != ''">
+            img_name = #{imgName},
+        </if>
+        <if test="imgDesc != null and imgDesc != ''">
+            img_desc = #{imgDesc},
+        </if>
+        <if test="detailLink != null and detailLink !=''">
+            detail_link = #{detailLink},
+        </if>
+        updateTime = now() where product_id = #{product.id} and pid = #{id}
+    </update>
+</mapper>

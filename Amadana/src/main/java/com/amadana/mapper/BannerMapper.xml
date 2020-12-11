@@ -26,7 +26,7 @@
     </insert>
     <!--  图片分页  -->
     <select id="findAll" parameterType="int" resultMap="bannerMapper">
-        select id,img_position,image_name,img,imgName,link_type,jump_link,link_way,
+        select id,img_position,image_name,
          img_order from tb_images where status = 1 order by img_order
     </select>
     <!--    删除图片-->
@@ -35,11 +35,16 @@
     </update>
 
     <select id="searchByImgPosition" parameterType="java.lang.String" resultMap="bannerMapper">
-        select id,img_position,image_name,img,imgName, link_type,jump_link,link_way,
+        select id,img_position,image_name,
         img_order from tb_images where status = 1
         and img_position like '%${ImgPosition}%' order by img_order
     </select>
-
+    <select id="findBannerById" parameterType="int" resultMap="bannerMapper">
+        select id,img_position,image_name,img,imgName, link_type,jump_link,link_way,
+        img_order from tb_images where id = #{id}
+    </select>
+    <!--  select id,img_position,image_name,img,imgName, link_type,jump_link,link_way,
+        img_order from tb_images where status = 1  -->
     <update id="update" parameterType="com.amadana.entity.Banner">
         update tb_images set
         <if test="bannerName != null and bannerName != ''">
