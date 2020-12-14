@@ -18,4 +18,10 @@ public interface ProductService {
     PageInfo search(Map<String,Object> map,int currentPage,int pageSize);
 
     boolean updateProduct(Product product);
+
+    Product getProductById(Integer id);
+
+    List<Product> getProductByCategory(String categoryName);
+
+    Product productDetail(Integer id);
 }

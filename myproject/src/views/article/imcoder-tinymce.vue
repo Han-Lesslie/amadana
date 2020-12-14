@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="bar">
-      <span class="box">文章管理 / 添加文章</span>
+      <span class="box">文章管理 / {{operation}}文章</span>
     </div>
     <!-- 富文本 -->
     <div class="full-text">
@@ -24,6 +24,42 @@
             placeholder="默认为amadana(为空的时候官网显示)"
           ></el-input>
         </el-form-item>
+        <el-form-item label="封面图片" prop="coverImg">
+          <el-upload
+            class="upload-demo"
+            action="/api/setFileUpload"
+            :with-credentials="true"
+            :on-change="getFile"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            :before-remove="beforeRemove"
+            :on-success="onSuccess"
+            list-type="picture"
+            multiple
+            :limit="1"
+            :on-exceed="handleExceed"
+            :file-list="imgs"
+          >
+            <el-button size="small" type="primary" style="margin-left:-300px;"
+              >点击上传</el-button
+            >
+            <div slot="tip" class="el-upload__tip">
+              只能上传jpg/png文件，且不超过2M
+            </div>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="封面标题" prop="coverTitle">
+          <el-input
+            v-model="articleForm.coverTitle"
+            placeholder="最多可输入55个字"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="封面描述" prop="coverDesc">
+          <el-input
+            v-model="articleForm.coverDesc"
+            placeholder="最多可输入55个字"
+          ></el-input>
+        </el-form-item>
         <el-form-item label="文章内容" prop="content">
           <editor
             v-model="articleForm.content"
@@ -33,11 +69,13 @@
           ></editor>
         </el-form-item>
         <el-form-item style="float:right">
-          <el-button v-if="articleForm != null"
+          <el-button
+            v-if="articleForm != null"
             type="primary"
             size="medium"
             @click="view"
-            >预览</el-button>
+            >预览</el-button
+          >
           <el-button
             style="background:#ff3300"
             type="danger"
@@ -66,17 +104,17 @@
       >
         <div class="view">
           <div style="margin-left:0px;">
-          <div class="bar" style="width:100%;">
-            <span class="box">文章管理 / 文章详情</span>
+            <div class="bar" style="width:100%;">
+              <span class="box">文章管理 / 文章详情</span>
+            </div>
           </div>
-        </div>
-        <div class="articleDetail">
-          <h3>{{ articleForm.title }}</h3>
-          <p>作者: {{ articleForm.author }}</p>
-          <p>发布时间: {{ articleForm.createDate }}</p>
-          <hr />
-          <div v-html="articleForm.content" class="content-detail"></div>
-        </div>
+          <div class="articleDetail">
+            <h3>{{ articleForm.title }}</h3>
+            <p>作者: {{ articleForm.author }}</p>
+            <p>发布时间: {{ articleForm.createDate }}</p>
+            <hr />
+            <div v-html="articleForm.content" class="content-detail"></div>
+          </div>
         </div>
       </el-dialog>
     </div>
@@ -153,20 +191,31 @@ export default {
         id: "",
         title: "",
         author: "amadana",
+        coverImg: "",
+        imgName: "",
+        coverTitle: "",
+        coverDesc: "",
         content: "",
         status: 1,
         article_url: "",
         createDate: "",
         updateDate: ""
       },
-      dialogVisible:false,
+      dialogVisible: false,
       isUpdate: false, //是否为更新,
+      operation:"添加",
+      imgs: [],
+      url: "http://106.52.108.173:8081/",
       rules: {
         title: [
           { required: true, message: "请输入文章标题", trigger: "blur" },
           { min: 1, max: 50, message: "长度在 1 到 50 个字符", trigger: "blur" }
         ],
         author: [{ required: true, message: "请输入作者名", trigger: "blur" }],
+        coverTitle: [
+          { required: true, message: "请输入封面标题", trigger: "blur" }
+        ],
+        coverDesc: [{ required: true, message: "请输入描述", trigger: "blur" }],
         content: [
           { required: true, message: "请填写文章内容", trigger: "blur" }
         ]
@@ -199,103 +248,125 @@ export default {
   },
   mounted() {
     tinymce.init({});
+    $(".el-upload-list").css({ width: "50%", "padding-left": "25%" });
   },
   created() {
-    let data = this.$route.params.data;
-    if (typeof data != undefined && data != null) {
-      console.log(data);
-      this.articleForm = data;
+    let id = this.$route.query.id;
+    if (id != undefined && id != null) {
       this.isUpdate = true;
+      this.operation = "更新";
+      this.getArticle(id);
     }
   },
   methods: {
-    getArticle() {
+    getArticle(id) {
       var token = localStorage.getItem("token");
       console.log("token ===== " + token);
       this.$http
-        .get("/api/getArticleByid?id=" + 1, { headers: { "token": token } })
+        .get("/api/getArticleByid?id=" + id, { headers: { token: token } })
         .then(res => {
           if (res.data.code === 200 && res.data.data !== null) {
-            console.log(res.data.data);
-            this.articleForm.title = res.data.data.title;
-            this.articleForm.content = res.data.data.content;
-          }else if (res.data.code === 405) {
-            this.$message({
-              type:"error",
-              message:"身份失效，请重新登录!"
+            this.articleForm = res.data.data;
+            this.imgs.push({
+              name: this.articleForm.imgName,
+              url: this.articleForm.coverImg
             });
-            this.$router.push("/login")
+          } else if (res.data.code === 405) {
+            this.$message({
+              type: "error",
+              message: "身份失效，请重新登录!"
+            });
+            this.$router.push("/login");
           }
         });
     },
     view() {
       this.dialogVisible = true;
-      this.$refs.tk.$el.firstChild.style.height = '220%';
+      $(".el-dialog").css({ overflow: "auto" });
+      this.$refs.tk.$el.firstChild.style.height = "calc(100% - 65px)";
     },
     handleClose(done) {
-          done();
-      },
+      done();
+    },
+    handleRemove(file, fileList) {
+      this.imgs.pop();
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
+    handleExceed(files, fileList) {
+      this.$message.warning(
+        `当前限制选择 1 个文件，本次选择了 ${
+          files.length
+        } 个文件，共选择了 ${files.length + fileList.length} 个文件`
+      );
+    },
+    beforeRemove(file, fileList) {
+      return this.$confirm(`确定移除 ${file.name}？`);
+    },
+    onSuccess(response, file, fileList) {
+      this.articleForm.coverImg = response.data;
+      //this.imgs.push({name:file.name,url:response.data.split(",")[0]});
+      $(".el-upload-list").css({ width: "50%", "padding-left": "40%" });
+    },
+    getFile(file, fileList) {
+      this.articleForm.imgName = file.name;
+      this.articleForm.coverImg = this.url + file.name;
+      // this.getBase64(file.raw).then(res => {
+      // this.articleForm.coverImg = res});
+    },
+    getBase64(file) {
+      return new Promise(function(resolve, reject) {
+        let reader = new FileReader();
+        let imgResult = "";
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+          imgResult = reader.result;
+        };
+        reader.onerror = function(error) {
+          reject(error);
+        };
+        reader.onloadend = function() {
+          resolve(imgResult);
+        };
+      });
+    },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
           let token = localStorage.getItem("token");
           if (token) {
             //this.articleForm.title = "<h2>" + this.articleForm.title + "</h2>"
-            if (!this.isUpdate) {
-              this.$http
-                .post("/api/publish", JSON.stringify(this.articleForm), {
-                  headers: { "token": token }
-                })
-                .then(res => {
-                  if (res.data.code === 200) {
-                    this.$notify({
-                      type: "success",
-                      message: "发布成功！"
-                    });
-                    this.$router.push("/articleManager");
-                  } else if (res.data.code === 1023) {
-                    this.$notify({
-                      type: "error",
-                      message: "发布失败！"
-                    });
-                  }else if (res.data.code === 405) {
-                    this.$message({
-                      type: "error",
-                      message: "身份失效，请重新登录!"
-                    });
-                    this.$router.push("/login");
-                  }
-                })
-                .catch(err => {
+            this.$http
+              .post("/api/publish", JSON.stringify(this.articleForm), {
+                headers: { token: token }
+              })
+              .then(res => {
+                if (res.data.code === 200) {
+                  this.$notify({
+                    type: "success",
+                    message: this.operation + "成功！"
+                  });
+                  this.$router.push("/articleManager");
+                } else if (res.data.code === 1023) {
+                  this.$notify({
+                    type: "error",
+                    message: this.operation + "失败！"
+                  });
+                } else if (res.data.code === 405) {
                   this.$message({
                     type: "error",
-                    message: "网络错误，请重试！"
+                    message: "身份失效，请重新登录!"
                   });
-                });
-            }else {
-              this.$http.post("/api/updateArticle",JSON.stringify(this.articleForm),
-              {headers:{"token":token}})
-              .then((res=>{
-                if (res.data.code == 200) {
-                   this.$notify({
-                     type:"success",
-                     message:"更新成功！"
-                   })
-                   this.$router.push("/articleManager")
-                }else if(res.data.code === 405){
-                  this.$message({
-                     type:"error",
-                     message:"身份失效,请重新登录!"
-                   });
-                   this.$router.push("/login");
-                } else {
-                  this.$notify({
-                     type:"error",
-                     message:"更新失败！"
-                   })
+                  this.$router.push("/login");
                 }
-              }))
-            }
+              })
+              .catch(err => {
+                this.$message({
+                  type: "error",
+                  message: "网络错误，请重试！"
+                });
+              });
           } else {
             this.$message({
               type: "error",
@@ -342,9 +413,11 @@ h3 {
 }
 p {
   font-size: 14px;
-
 }
 .content-detail {
   padding-top: 25px;
+}
+.upload-demo {
+  margin-left: -300px;
 }
 </style>

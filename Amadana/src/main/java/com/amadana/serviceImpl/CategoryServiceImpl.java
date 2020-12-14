@@ -62,9 +62,13 @@ public class CategoryServiceImpl implements CategoryService {
             return false;
         }
         try{
-            category.setCreateTime(DateFormat.dateFormat(new Date()));
             category.setStatus(1);
-            int count = categoryMapper.save(category);
+            int count = 0;
+            if (category.getId() == null) {
+                count = categoryMapper.save(category);
+            }else{
+                count = categoryMapper.update(category);
+            }
             return count == 0 ? false : true;
         }catch (Exception e) {
             e.printStackTrace();
@@ -75,5 +79,10 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<Category> findAll() {
         return categoryMapper.findAll();
+    }
+
+    @Override
+    public List<Category> getAllCategory() {
+        return categoryMapper.getAllCategory();
     }
 }

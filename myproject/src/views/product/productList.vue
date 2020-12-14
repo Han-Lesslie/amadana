@@ -66,7 +66,7 @@
         <el-table-column prop="operation" label="操作" align="center" fix>
           <template slot-scope="scope">
             <el-button type="primary" icon="el-icon-edit" size="mini" @click="edit(scope.row)">
-            修改</el-button>
+            编辑</el-button>
           <el-button type="danger" icon="el-icon-delete" size="mini" @click="remove(scope.row)"
             >删除</el-button>
           </template>
@@ -90,7 +90,7 @@ export default {
     return {
       productData: [],
       currentPage: 1,
-      pageSize: 10,
+      pageSize: 5,
       total: 1,
       token:"",
       map:{},
@@ -155,7 +155,7 @@ export default {
       this.$router.push({name:"addProduct",params:{data:data}});
     },
     remove(data) {
-      this.$confirm("缺点删除吗").then(_=>{
+      this.$confirm("确定删除吗").then(_=>{
         if (data === null || data === undefined){
         this.$message({
           type:"error",

@@ -15,4 +15,10 @@ public interface ProductMapper extends BaseMapper {
     List<Product> findByProductId(Integer id);
 
     List<Product> search(Map<String,Object> map);
+
+    Product getProductById(Integer id);
+
+    List<Product> getProductByCategory(Integer id);
+
+    Product productDetail(Integer id);
 }

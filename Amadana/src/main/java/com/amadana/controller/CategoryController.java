@@ -159,6 +159,15 @@ public class CategoryController {
     }
 
     /**
+     * 获取产品分类
+     * @return
+     */
+    @ApiOperation("获取产品分类")
+    @GetMapping("/getAllCategory")
+    public ResponseResult getAllCategory() {
+        return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),categoryService.getAllCategory());
+    }
+    /**
      * 验证token是否过期
      * @param token
      * @return

@@ -36,7 +36,7 @@ public class FileUploadController {
         try {
             Map<String, Object> resultMap = upload(file);
             if (Constant.SUCCESS_CODE == (int)resultMap.get("code")) {
-                return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),resultMap.get("path"));
+                return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),resultMap);
             }
         } catch (Exception e) {
             e.printStackTrace();

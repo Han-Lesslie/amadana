@@ -30,4 +30,8 @@ public class Article implements Serializable {
     private String aritle_url;
     private String content;
     private Integer status;
+    private String imgName;
+    private String coverImg;
+    private String coverTitle;
+    private String coverDesc;
 }

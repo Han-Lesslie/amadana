@@ -2,6 +2,7 @@ package com.amadana.controller;
 
 import com.amadana.annotation.UserLoginToken;
 import com.amadana.constant.Constant;
+import com.amadana.dao.ProductDetailMapper;
 import com.amadana.entity.Product;
 import com.amadana.enums.StateCode;
 import com.amadana.service.ProductService;
@@ -30,6 +31,9 @@ public class ProductController {
     private final static Logger LOGGER  = LoggerFactory.getLogger(ProductController.class);
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ProductDetailMapper productDetailMapper;
     @Autowired
     private RedisUtils redisUtils;
 
@@ -60,7 +64,6 @@ public class ProductController {
     public ResponseResult updateProduct(@ApiParam("产品信息") @RequestBody Product product, HttpServletRequest request, HttpServletResponse response) {
         String token = request.getHeader("token");
         boolean isExpire = isExpire(token);
-        LOGGER.info("product ==================== >>> {}",product);
 
         if (!isExpire) {
             redisUtils.setExpire(token,token, Constant.EXPIRE_TIME);
@@ -132,6 +135,20 @@ public class ProductController {
         }
     }
 
+    @ApiOperation("根据ID查找产品")
+    @GetMapping("/getProductById")
+    public ResponseResult getProductById(@ApiParam("产品ID")@RequestParam("id") Integer id,HttpServletRequest request,HttpServletResponse response) {
+        String token = request.getHeader("token");
+        boolean isExpire = isExpire(token);
+        if (!isExpire) {
+            redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
+            Product product = productService.getProductById(id);
+            return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),product);
+        }else {
+            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+        }
+    }
+
     @ApiOperation("产品搜索")
     @PostMapping("/searchProduct")
     @UserLoginToken
@@ -148,6 +165,32 @@ public class ProductController {
         }else {
             return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+    }
+
+    @ApiOperation("根据ID删除详情")
+    @GetMapping("/deleteDetailById")
+    @UserLoginToken
+    public ResponseResult deleteDetail(@ApiParam("产品ID")@RequestParam("id") Integer id,HttpServletRequest request,HttpServletResponse response) {
+        String token = request.getHeader("token");
+        boolean isExpire = isExpire(token);
+        System.out.println(id);
+        if (!isExpire) {
+            redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
+            return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),productDetailMapper.deleteDetailById(id));
+        }else {
+            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+        }
+    }
+
+    @GetMapping("/getProductByCategory")
+    @ApiOperation("根据分类名称获取产品")
+    public ResponseResult getProductByCategory(@ApiParam("分类名称")@RequestParam("categoryName") String categoryName){
+        return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),productService.getProductByCategory(categoryName));
+    }
+    @GetMapping("/productDetail")
+    @ApiOperation("获取产品详情")
+    public ResponseResult getProductByCategory(@ApiParam("ID")@RequestParam("id") Integer id){
+        return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),productService.productDetail(id));
     }
     private boolean isExpire(String token) {
         String value = (String) redisUtils.get(token);

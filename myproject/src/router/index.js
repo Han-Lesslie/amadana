@@ -12,6 +12,8 @@ import productCategory from '@/views/product/productCategory'
 import addCategory from '@/views/product/addCategory'
 import productList from '@/views/product/productList'
 import addProduct from '@/views/product/addProduct'
+import addVideo from '@/views/video/addVideo'
+import videoManager from '@/views/video/videoManager'
 import empty from '@/components/empty'
 Vue.use(Router)
 
@@ -72,6 +74,14 @@ export default new Router({
         path: '/addProduct',
         name: 'addProduct',
         component: addProduct
+      },{
+        path: '/addVideo',
+        name: 'addVideo',
+        component: addVideo
+      },{
+        path: '/videoManager',
+        name: 'videoManager',
+        component: videoManager
       }]
     }
   ]

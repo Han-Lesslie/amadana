@@ -6,12 +6,8 @@ import com.amadana.dao.ProductMapper;
 import com.amadana.entity.Category;
 import com.amadana.entity.Product;
 import com.amadana.entity.ProductDetail;
-import com.amadana.enums.StateCode;
-import com.amadana.result.Expection;
-import com.amadana.service.FileUploadService;
 import com.amadana.service.ProductService;
 import com.amadana.utils.CommonUtil;
-import com.amadana.utils.DateFormat;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
@@ -19,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,25 +31,17 @@ public class ProductServiceImpl implements ProductService {
     private ProductMapper productMapper;
     @Autowired
     private ProductDetailMapper productDetailMapper;
-    @Autowired
-    private FileUploadService fileUploadService;
 
     private final static Logger LOGGER =  LoggerFactory.getLogger(ProductServiceImpl.class);
     @Override
     public boolean saveProduct(Product product) {
-        if (validateBase64(product)) return false;
-
         try {
             List<Category> categories = categoryMapper.findCategoryByName(product.getCategory().getCategoryName());
 
             if (categories.size() != 0) {
-
                 Category category = categories.get(0);
-                LOGGER.info("product:{}",product);
-                product.setCreateTime(DateFormat.dateFormat(new Date()));
-                product.setCategory(category);
 
-                List<String> imgs = fileUploadService.getFileNames();
+                product.setCategory(category);
                 int count = productMapper.save(product);
 
                 // 插入产品，成功了再插入产品详情
@@ -65,7 +53,6 @@ public class ProductServiceImpl implements ProductService {
                     // 设置产品详情url以及对应的产品
                     for (int i=0;i<productDetails.size();i++) {
                         productDetails.get(i).setProduct(pro);
-                        productDetails.get(i).setCreateTime(DateFormat.dateFormat(new Date()));
                     }
                     // 批量插入产品详情
                     int result = productDetailMapper.batchSaveProductDetail(productDetails);
@@ -133,31 +120,32 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public boolean updateProduct(Product product) {
-        if (validateBase64(product)) return false;
 
         try {
-            //List<Category> categories = categoryMapper.findCategoryByName(product.getCategory().getCategoryName());
-            Category category = product.getCategory();
-            if (null != category && null != category.getId()) {
-                LOGGER.info("product:{}",category);
+            Category category = categoryMapper.findCategoryByName(product.getCategory().getCategoryName()).get(0);
+            product.setCategory(category);
 
-                //product.setCategory(category);
+            if (null != product && null != product.getId()) {
+                LOGGER.info("product:{}",category);
 
                 int count = productMapper.update(product);
 
                 // 更新产品，成功了再插入产品详情
                 if (count != 0) {
-                    Product pro = new Product();
-                    // 设置产品的id
-                    pro.setId(product.getId());
                     List<ProductDetail> productDetails = product.getProductDetails();
                     int result = 0;
                     // 设置产品详情url以及对应的产品
+                    Product pro = new Product();
+                    pro.setId(product.getId());
                     for (int i=0;i<productDetails.size();i++) {
                         productDetails.get(i).setProduct(pro);
-                        //productDetails.get(i).setCreateTime(DateFormat.dateFormat(new Date()));
-                        // 批量更新产品详情
-                        result = productDetailMapper.update(productDetails.get(i));
+                        if (productDetails.get(i).getId() != null) {
+                            // 批量更新产品详情
+                            result = productDetailMapper.update(productDetails.get(i));
+                        }else {
+                            int finalI = i;
+                            result = productDetailMapper.batchSaveProductDetail(new ArrayList<ProductDetail>(){{add(productDetails.get(finalI));}});
+                        }
                     }
                     return result == 0 ? false : true;
                 }
@@ -167,6 +155,28 @@ public class ProductServiceImpl implements ProductService {
             e.printStackTrace();
             return false;
         }
+    }
+
+    @Override
+    public Product getProductById(Integer id) {
+        if (null == id) {return  null;}
+         try{
+             return productMapper.getProductById(id);
+         }catch (Exception e) {
+             e.printStackTrace();
+             return null;
+         }
+    }
+
+    @Override
+    public List<Product> getProductByCategory(String categoryName) {
+        Category category  = categoryMapper.findCategoryByName(categoryName).get(0);
+        return productMapper.getProductByCategory(category.getId());
+    }
+
+    @Override
+    public Product productDetail(Integer id) {
+        return productMapper.productDetail(id);
     }
 
     private boolean validateBase64(Product product) {

@@ -46,7 +46,7 @@
             <el-menu
               default-active="1-1"
               class="el-menu-vertical-demo"
-              style="min-height:660px;"
+              style="min-height:740px;"
               background-color="rgba(51, 51, 51, 1)"
               text-color="white"
               active-text-color="rgb(255, 51, 0)"
@@ -54,18 +54,18 @@
             >
               <el-submenu index="1">
                 <template slot="title">
-                  <i class="el-icon-shopping-bag-1"></i>
+                  <i class="el-icon-s-operation"></i>
                   <span slot="title">产品管理</span>
                 </template>
                 <el-menu-item-group >
                   <el-menu-item index="1-1" style="padding-left:70px;">
-                    <i class="el-icon-menu"></i>  
+                    <i class="el-icon-s-goods"></i>  
                     <span slot="title">产品列表</span>
                   </el-menu-item>
                 </el-menu-item-group>
                  <el-menu-item-group>
                   <el-menu-item index="1-2" style="padding-left:70px;">
-                    <i class="el-icon-menu"></i> 
+                    <i class="el-icon-s-shop"></i> 
                     <span slot="title">产品类别</span>
                   </el-menu-item>
                 </el-menu-item-group>
@@ -77,12 +77,25 @@
                   <span slot="title">图片管理</span>
                 </template>
               </el-menu-item>
-              <el-menu-item index="3">
+
+              <el-submenu index="3">
                 <template slot="title">
-                  <i class="el-icon-document"></i>
-                  <span slot="title">文章管理</span>
+                  <i class="el-icon-s-operation"></i>
+                  <span slot="title">媒体管理</span>
                 </template>
-              </el-menu-item>
+                <el-menu-item-group >
+                  <el-menu-item index="3-1" style="padding-left:70px;">
+                    <i class="el-icon-document"></i>
+                  <span slot="title">文章管理</span>
+                  </el-menu-item>
+                </el-menu-item-group>
+                 <el-menu-item-group>
+                  <el-menu-item index="3-2" style="padding-left:70px;">
+                    <i class="el-icon-video-camera-solid"></i> 
+                    <span slot="title">视频管理</span>
+                  </el-menu-item>
+                </el-menu-item-group>
+              </el-submenu>
             </el-menu>
           </div>
         </el-col>
@@ -177,9 +190,13 @@ export default {
           this.$router.push("/pictureManager");
           this.breadcrumbItems = ["图片管理"];
           break;
-        case "3":
+        case "3-1":
           this.$router.push("/articleManager");
           this.breadcrumbItems = ["文章管理"];
+          break;
+        case "3-2":
+          this.$router.push("/videoManager");
+          this.breadcrumbItems = ["视频管理"];
           break;
       }
     }

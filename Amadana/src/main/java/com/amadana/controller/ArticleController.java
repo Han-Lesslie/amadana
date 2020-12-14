@@ -68,27 +68,14 @@ public class ArticleController {
      * @param response
      * @return
      */
-    /*@ApiOperation("根据ID查看文章")
+    @ApiOperation("根据ID查看文章")
     @GetMapping("/getArticleByid")
-    @UserLoginToken
     public ResponseResult getArticleById(@ApiParam("文章ID")@RequestParam("id") Integer id,
                                          HttpServletRequest request, HttpServletResponse response) {
 
-        String token = request.getHeader("token");
-        boolean isExpire =  isExpire(token);
-        if (!isExpire) {
-            Article article = articleService.getArticleById(id);
-            redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
-            if (null != article) {
-                return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),article);
-            }else {
-                return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),null);
-            }
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
-        }
-    }*/
+        return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),articleService.getArticleById(id));
 
+    }
     /**
      * 获取分页
      * @param currentPage
@@ -168,6 +155,16 @@ public class ArticleController {
         }else {
             return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+    }
+
+    /**
+     * 获取文章列表
+     * @return
+     */
+    @GetMapping("/getArticles")
+    @ApiOperation("获取文章列表")
+    public ResponseResult getArticles() {
+        return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),articleService.getArticles());
     }
 
     @ApiOperation("获取全部文章")

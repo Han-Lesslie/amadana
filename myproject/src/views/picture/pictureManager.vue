@@ -47,7 +47,7 @@
         </el-table-column>
         <el-table-column prop="bannerName" label="图片名称" align="center" fix>
         </el-table-column>
-        <el-table-column prop="bannerUrl" label="图片" align="center" fix>
+      <el-table-column prop="bannerUrl" label="封面图片" align="center" fix>
           <template slot-scope="scope">
             <el-image
               style="width: 50px; height: 50px"
@@ -61,8 +61,8 @@
         </el-table-column>
         <el-table-column prop="operation" label="操作" align="center" fix>
           <template slot-scope="scope">
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="edit(scope.row)"
-            >修改</el-button
+            <el-button type="primary" icon="el-icon-edit" size="mini" @click="edit(scope.row.id)"
+            >编辑</el-button
           >
           <el-button type="danger" icon="el-icon-delete" size="mini" @click="remove(scope.row)"
             >删除</el-button
@@ -93,7 +93,7 @@ export default {
     return {
       bannerData: [],
       currentPage: 1,
-      pageSize: 4,
+      pageSize: 5,
       total: 1,
       flag:false,
       options: [
@@ -189,7 +189,7 @@ export default {
       })
     },
     edit(data) {
-      this.$router.push({name: "addPicture",params:{data:data}});
+      this.$router.push({path: "/addPicture",query:{id:data}});
     },
     // 处理分页
     handleCurrentChange(page) {
@@ -212,8 +212,7 @@ export default {
             this.bannerData[i].imgList = imgList;
           }
           this.total = res.data.count;
-          console.log(this.bannerData[0].bannerUrl)
-          //alert(this.total)
+          
         });
       }else {
         this.$http.get("/api/searchImg?currentPage="+currentPage+"&pageSize="+pageSize+"&imgPosition="+imgPosition,{headers:{"token":this.token}})

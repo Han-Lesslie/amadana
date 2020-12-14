@@ -10,4 +10,6 @@ import java.util.List;
 public interface VideoMapper extends BaseMapper{
 
     List<Video> getVideos();
+
+    Video getVideoById(Integer id);
 }

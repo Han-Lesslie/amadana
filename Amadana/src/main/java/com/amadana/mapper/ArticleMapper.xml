@@ -13,17 +13,29 @@
         <result column="article_url" property="article_url"/>
         <result column="content" property="content"/>
         <result column="status" property="status"/>
+        <result column="coverName" property="imgName"/>
+        <result column="coverImg" property="coverImg"/>
+        <result column="coverTitle" property="coverTitle"/>
+        <result column="coverDesc" property="coverDesc"/>
     </resultMap>
     <insert id="saveArticle" parameterType="com.amadana.entity.Article" useGeneratedKeys="true" >
-        insert into tb_article(title,author,createDate,content) values (#{title},#{author},#{createDate},#{content})
+        insert into tb_article(title,author,createDate,updateDate,content,coverName,coverImg,coverTitle,coverDesc)
+        values (#{title},#{author},now(),now(),#{content},#{imgName},#{coverImg},#{coverTitle},#{coverDesc})
     </insert>
     <select id="getArticleById" parameterType="int" resultMap="articleMapper">
-        select * from tb_article
+        select title,author,updateDate,content from tb_article where id = #{id}
     </select>
     <select id="findAll" resultMap="articleMapper">
+        select id,title,author,coverImg,updateDate from tb_article where status = 1
+    </select>
+
+    <select id="getArticleDetailById" parameterType="int" resultMap="articleMapper">
+        select id,title,author,updateDate,content,coverName,coverImg,coverTitle,coverDesc from tb_article where id = #{id}
+    </select>
+    <!--<select id="findAll" resultMap="articleMapper">
         select id,title,author,createDate,updateDate,article_url,content,status from tb_article where status = 1
         order by createDate desc
-    </select>
+    </select>    -->
     <update id="update" parameterType="com.amadana.entity.Article">
         update tb_article set
         <if test="title != null and title != ''">
@@ -32,15 +44,29 @@
         <if test="author !=null and title != ''">
             author = #{author},
         </if>
-        <if test="updateDate != null and updateDate != ''">
-            updateDate = #{updateDate},
-        </if>
         <if test="content != null and content != ''">
-            content = #{content}
+            content = #{content},
         </if>
+        <if test="imgName != null and imgName != ''">
+            coverName = #{imgName},
+        </if>
+        <if test="coverImg != null and coverImg != ''">
+            coverImg = #{coverImg},
+        </if>
+        <if test="coverTitle != null and coverTitle != ''">
+            coverTitle = #{coverTitle},
+        </if>
+        <if test="coverDesc != null and coverDesc != ''">
+            coverDesc = #{coverDesc},
+        </if>
+        updateDate = now()
         where id = #{id} and status = 1
     </update>
-    <update id="delete" parameterType="int">
-        update tb_article set status = 0 where id = #{id}
-    </update>
+    <delete id="delete" parameterType="int">
+        delete from tb_article where id = #{id}
+    </delete>
+<!--    获取文章列表-->
+    <select id="getArticles" resultMap="articleMapper">
+        select id,coverTitle,coverImg,coverDesc from tb_article where status = 1 and flag = 0 limit 6
+    </select>
 </mapper>

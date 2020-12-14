@@ -3,6 +3,7 @@ package com.amadana.serviceImpl;
 import com.amadana.dao.VideoMapper;
 import com.amadana.entity.Article;
 import com.amadana.entity.Video;
+import com.amadana.service.FileUploadService;
 import com.amadana.service.VideoService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -17,13 +18,22 @@ public class VideoServiceImpl implements VideoService {
 
     @Autowired
     private VideoMapper videoMapper;
+    @Autowired
+    private FileUploadService fileUploadService;
+
     @Override
     public boolean saveVideo(Video video) {
         if (null == video) {
             return false;
         }
         try{
-            int count = videoMapper.save(video);
+            int count = 0;
+            if (video.getId() == null) {
+               count = videoMapper.save(video);
+            }else {
+                count = videoMapper.update(video);
+            }
+
             return count == 0 ? false : true;
         }catch (Exception e) {
             e.printStackTrace();
@@ -74,6 +84,10 @@ public class VideoServiceImpl implements VideoService {
             return false;
         }
         try {
+            /*Video video  = videoMapper.getVideoById(id);
+            fileUploadService.deteleFile(video.getVideoImg());
+            String videoPath = video.getVideoPath();
+            fileUploadService.deteleFile(videoPath.substring(videoPath.lastIndexOf("/")+1));*/
             int count = videoMapper.delete(id);
             return count == 0 ? false:true;
         }catch (Exception e) {

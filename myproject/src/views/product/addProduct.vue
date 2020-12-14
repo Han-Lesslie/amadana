@@ -2,10 +2,12 @@
   <div class="addproduct">
     <div>
       <div class="bar">
-        <span class="box">产品列表 / {{operation}}产品</span>
+        <span class="box">产品列表 / {{ operation }}产品</span>
       </div>
     </div>
-    <div class="form">
+    <div class="form" v-loading="loading"
+      element-loading-text="提交中....."
+      element-loading-spinner="el-icon-loading">
       <el-form
         :model="productForm"
         :rules="rules"
@@ -37,7 +39,8 @@
               v-model="productForm.productCategory"
               filterable
               placeholder="请选择产品类别"
-              style="width:100%" fix
+              style="width:100%"
+              fix
             >
               <el-option
                 v-for="item in options"
@@ -56,13 +59,15 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="产品icon" prop="productIcon">
-          <el-upload v-model="productForm.productIcon"
+          <el-upload
+            v-model="productForm.productIcon"
             class="upload-demo"
             action="/api/setFileUpload"
+            :on-change="getIconFile"
+            :with-credentials="true"
             :on-preview="handlePreview"
             :on-remove="handleRemove"
             :before-remove="beforeRemove"
-            :on-success="onIconSuccess"
             multiple
             list-type="picture"
             :limit="1"
@@ -79,13 +84,15 @@
         </el-form-item>
 
         <el-form-item label="封面图片" prop="productImg">
-          <el-upload v-model="productForm.productImg"
+          <el-upload
+            v-model="productForm.productImg"
             class="upload-demo"
             action="/api/setFileUpload"
+            :with-credentials="true"
+            :on-change="getProductFile"
             :on-preview="handlePreview"
             :on-remove="handleRemove"
             :before-remove="beforeRemove"
-            :on-success="onOverSuccess"
             multiple
             :limit="1"
             list-type="picture"
@@ -101,13 +108,15 @@
           </el-upload>
         </el-form-item>
         <el-form-item label="展示图片" prop="displayImg">
-          <el-upload v-model="productForm.displayImg"
+          <el-upload
+            v-model="productForm.displayImg"
             class="upload-demo"
             action="/api/setFileUpload"
+            :with-credentials="true"
+            :on-change="getDisplayFile"
             :on-preview="handlePreview"
             :on-remove="handleRemove"
             :before-remove="beforeRemove"
-            :on-success="onDisplaySuccess"
             multiple
             :limit="1"
             :on-exceed="handleExceed"
@@ -123,10 +132,7 @@
           </el-upload>
         </el-form-item>
         <el-form-item label="产品价格" prop="price">
-          <el-input
-            v-model="productForm.price"
-            placeholder="元"
-          ></el-input>
+          <el-input v-model="productForm.price" placeholder="元"></el-input>
         </el-form-item>
         <!-- 动态增加项目 -->
         <!-- 不止一个项目，用div包裹起来 -->
@@ -147,7 +153,7 @@
                 ></i>
               </div>
               <div>
-                <el-form-item 
+                <el-form-item
                   label="图片详情"
                   :prop="''"
                   :rules="{
@@ -156,17 +162,20 @@
                     trigger: 'blur'
                   }"
                 >
-                  <el-upload v-model="item.imgName"
+                  <el-upload
+                    v-model="item.imgName"
                     class="upload-demo"
                     action="/api/setFileUpload"
+                    :with-credentials="true"
+                    :on-change="getDetailsFile"
                     :on-preview="handlePreview"
-                    :on-remove="handleRemove"
+                    :on-remove="handleRemove1"
                     :before-remove="beforeRemove"
                     :on-success="onDetailSuccess"
                     multiple
                     :limit="1"
                     :on-exceed="handleExceed"
-                    :file-list="imgsdetail"
+                    :file-list="item.imgsdetail"
                     list-type="picture"
                   >
                     <el-button
@@ -182,15 +191,18 @@
                 </el-form-item>
               </div>
             </div>
-            <el-form-item style="width:80%;"
+            <el-form-item
+              style="width:80%;"
               label="图片名称"
               :prop="'请填写图片名称'"
               :rules="[
                 { required: false, message: '请填写图片名称', trigger: 'blur' }
               ]"
             >
+              <el-input v-model="item.imgName"></el-input>
             </el-form-item>
-            <el-form-item style="width:80%;"
+            <el-form-item
+              style="width:80%;"
               label="图片描述"
               :prop="'请填写图片描述'"
               :rules="[
@@ -199,7 +211,8 @@
             >
               <el-input v-model="item.imgDesc"></el-input>
             </el-form-item>
-            <el-form-item  style="width:80%;"
+            <el-form-item
+              style="width:80%;"
               label="链接详情"
               :prop="'请填写链接详情'"
               :rules="[
@@ -240,38 +253,45 @@
 </template>
 
 <script>
-import $ from 'jquery'
+import $ from "jquery";
 export default {
   name: "addProduct",
   data() {
     return {
       productForm: {
+        id: "",
         productName: "",
-        productDesc:"",
+        productDesc: "",
         productCategory: "",
-        category:{categoryName:""},
-        productIcon:"",
-        productImg:"",
-        displayImg:"",
+        category: { categoryName: "" },
+        productIcon: "",
+        iconName: "",
+        productImg: "",
+        productImgName: "",
+        displayImg: "",
+        displayName: "",
         price: "",
-        productNumber:"",
-        productModel:"",
+        productNumber: "",
+        productModel: "",
         productDetails: [
           {
-            detailImg: "111",
+            id: "",
+            detailImg: "",
+            detailName: "",
             imgName: "",
             imgDesc: "",
-            detailLink: ""
+            detailLink: "",
+            imgsdetail: []
           }
         ]
       },
-      imgs1:[],
-      imgs2:[],
-      imgs3:[],
-      imgsdetail:[],
-      token:"",
-      operation:"添加",
-      isUpdate:false,
+      imgs1: [],
+      imgs2: [],
+      imgs3: [],
+      details: [],
+      token: "",
+      operation: "添加",
+      isUpdate: false,
       rules: {
         productName: [
           { required: true, message: "请输入产品名称", trigger: "blur" },
@@ -297,12 +317,12 @@ export default {
         displayImg: [
           { required: true, message: "请上传展示图片", trigger: "change" }
         ],
-        price: [
-          { required: true, message: "输入产品价格", trigger: "change" }
-        ]
+        price: [{ required: true, message: "输入产品价格", trigger: "change" }]
       },
       options: [],
-      value: ""
+      value: "",
+      loading: false,
+      url: "http://106.52.108.173:8081/"
     };
   },
   created() {
@@ -314,92 +334,198 @@ export default {
     if (data !== null && data !== undefined) {
       this.operation = "更新";
       this.isUpdate = true;
-      //this.findByProductId(data.id);
+      //this.findByProductId(id);
       this.productForm = data;
-      this.productForm.productCategory = data.category.categoryName
-      let productDetails = data.productDetails;
-      this.imgs1.push({name:this.productForm.productIcon.substring(this.productForm.productIcon.lastIndexOf("/")+1),url:this.productForm.productIcon});
-      this.imgs2.push({name:this.productForm.productImg.substring(this.productForm.productImg.lastIndexOf("/")+1),url:this.productForm.productImg});
-      this.imgs3.push({name:this.productForm.displayImg.substring(this.productForm.displayImg.lastIndexOf("/")+1),url:this.productForm.displayImg});
-      this.imgsdetail.push({name:this.productForm.displayImg.substring(this.productForm.displayImg.lastIndexOf("/")+1),url:this.productForm.displayImg});
+      this.productForm.productCategory = this.productForm.category.categoryName;
+      this.imgs1.push({name:this.productForm.iconName,url:this.productForm.productIcon});
+      this.imgs2.push({name:this.productForm.displayName,url:this.productForm.displayImg});
+      this.imgs3.push({name:this.productForm.productImgName,url:this.productForm.productImg});
+      let details = this.productForm.productDetails;
+      for (var i=0;i<details.length;i++) {
+        this.productForm.productDetails[i].imgsdetail = [];
+        this.productForm.productDetails[i].imgsdetail.push({name:details[i].imgName,url:details[i].detailImg});
+      }
     }
     this.findAllCategory();
   },
-  mounted(){
-     $('.el-upload-list').css({"width":"50%","padding-left":"40%"});
+  mounted() {
+    $(".el-upload-list").css({ width: "50%", "padding-left": "40%" });
   },
   methods: {
     addItem() {
       this.productForm.productDetails.push({
-        detailImg: "1111",
+        id: "",
+        detailImg: "",
+        detailName: "",
         imgName: "",
         imgDesc: "",
-        detailLink: ""
+        detailLink: "",
+        imgsdetail: []
       });
     },
     deleteItem(item, index) {
       if (index != 0) {
-        this.productForm.productDetails.splice(index, 1);
+        if (this.isUpdate) {
+          this.$confirm("确定删除吗?").then(_ => {
+            this.$http
+              .get("/api/deleteDetailById?id=" + item.id, {
+                headers: { token: this.token }
+              })
+              .then(res => {
+                if (res.data.code == 200) {
+                  this.$notify({
+                    type: "success",
+                    message: "移除成功!"
+                  });
+                  this.productForm.productDetails.splice(index, 1);
+                }
+              });
+          });
+        } else {
+          this.productForm.productDetails.splice(index, 1);
+        }
       }
     },
-    /*
+    getIconFile(file, fileList) {
+      this.productForm.iconName = file.name;
+      this.productForm.productIcon = this.url + file.name;
+      /*this.getBase64(file.raw).then(res => {
+        this.productForm.productIcon = res;
+      });*/
+    },
+    getProductFile(file, fileList) {
+      this.productForm.productImgName = file.name;
+      this.productForm.productImg = this.url + file.name;
+    },
+    getDisplayFile(file, fileList) {
+      this.productForm.displayName = file.name;
+      this.productForm.displayImg = this.url + file.name;
+    },
+    getDetailsFile(file, fileList) {
+      $(".el-upload-list").css({ width: "50%", "padding-left": "40%" });
+    },
+    onDetailSuccess(response, file, fileList) {
+      let obj = {};
+      obj.name = file.name;
+      obj.url = this.url + file.name;
+      this.details.push(obj);
+      console.log(this.details.length,'---------------------');
+      $(".el-upload-list").css({ width: "50%", "padding-left": "40%" });
+    },
+    // 将图片转化为base64位
+    getBase64(file) {
+      return new Promise(function(resolve, reject) {
+        let reader = new FileReader();
+        let imgResult = "";
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+          imgResult = reader.result;
+        };
+        reader.onerror = function(error) {
+          reject(error);
+        };
+        reader.onloadend = function() {
+          resolve(imgResult);
+        };
+      });
+    },
+
     findByProductId(id) {
-      this.$http.get("/api/findByProductId?id="+id,{headers:{"token":this.token}}).then(res=>{
-         if(res.data.code === 200) {
-           this.productForm = res.data.data[0];
-           this.productForm.productDetails = res.data.data[0].category;
-         }else if (res.data.code === 405){
-           this.$message({
-          type:"error",
-          message:"身份失效，请重新登录！"
-        });
-        this.$router.push("/login");
-         }
-      }).catch(err=>{
-        this.$message({
-          type:"error",
-          message:"网络异常，请重试！"
+      this.loading = true;
+      this.$http
+        .get("/api/getProductById?id=" + id, { headers: { token: this.token } })
+        .then(res => {
+          if (res.data.code === 200) {
+            this.loading = false;
+            this.productForm = res.data.data;
+            this.productForm.productCategory = this.productForm.category.categoryName;
+            this.imgs1.push({
+              name: this.productForm.iconName,
+              url: this.productForm.productIcon
+            });
+            this.imgs2.push({
+              name: this.productForm.productImgName,
+              url: this.productForm.productImg
+            });
+            this.imgs3.push({
+              name: this.productForm.displayName,
+              url: this.productForm.displayImg
+            });
+            let details = this.productForm.productDetails;
+
+            for (var i = 0; i < details.length; i++) {
+              this.productForm.productDetails[i].imgsdetail = []; //
+              this.productForm.productDetails[i].imgsdetail.push({
+                name: details[i].imgName,
+                url: details[i].detailImg
+              });
+            }
+          } else if (res.data.code === 405) {
+            this.$message({
+              type: "error",
+              message: "身份失效，请重新登录！"
+            });
+            this.$router.push("/login");
+          }
         })
-      })
-    },*/
-    findAllCategory(){
-       this.$http.get("/api/findAllCategory",{headers:{"token":this.token}})
-       .then(res=>{
-         if (res.data.code === 200) {
-           this.options = res.data.data;
-         }else if (res.data.code === 405) {
-           this.$message({
-             type:"error",
-             message:"身份失效，请重新登录!"
-           });
-           this.$router.push("/login");
-         }
-       })
+        .catch(err => {
+          console.log(err);
+          this.$message({
+            type: "error",
+            message: "网络异常，请重试！"
+          });
+        });
     },
-    onIconSuccess(response,file,fileList) {
-      this.productForm.productIcon = file.name;
-      this.imgs1.push({name:file.name,url:response.data.split(",")[0]})
-      $(".el-upload-list").css({"width":"50%","padding-left":"40%"});
+
+    findAllCategory() {
+      this.$http
+        .get("/api/findAllCategory", { headers: { token: this.token } })
+        .then(res => {
+          if (res.data.code === 200) {
+            this.options = res.data.data;
+          } else if (res.data.code === 405) {
+            this.$message({
+              type: "error",
+              message: "身份失效，请重新登录!"
+            });
+            this.$router.push("/login");
+          }
+        });
     },
-    onOverSuccess(response,file,fileList) {
-      this.productForm.productImg = file.name;
-      this.imgs2.push({name:file.name,url:response.data.split(",")[0]})
-       $(".el-upload-list").css({"width":"50%","padding-left":"40%"});
-    },
-    onDisplaySuccess(response,file,fileList) {
-      this.productForm.displayImg = file.name
-      this.imgs3.push({name:file.name,url:response.data.split(",")[0]})
-       $(".el-upload-list").css({"width":"50%","padding-left":"40%"});
-    },
-    onDetailSuccess(response,file,fileList) {
-       this.productForm.productDetails.detailImg = file.name;
-       this.imgsdetail.push({name:file.name,url:response.data.split(",")[0]})
-        $(".el-upload-list").css({"width":"50%","padding-left":"40%"});
-     },
+
+    // onIconSuccess(response,file,fileList) {
+    //   this.productForm.productIcon = file.name;
+
+    //   $(".el-upload-list").css({"width":"50%","padding-left":"40%"});
+    // },
+    // onOverSuccess(response,file,fileList) {
+    //   this.productForm.productImg = file.name;
+    //   //this.imgs2.push({name:file.name,url:response.data.split(",")[0]})
+    //    $(".el-upload-list").css({"width":"50%","padding-left":"40%"});
+    // },
+    // onDisplaySuccess(response,file,fileList) {
+    //   this.productForm.displayImg = file.name
+    //   this.imgs3.push({name:file.name,url:response.data.split(",")[0]})
+    //    $(".el-upload-list").css({"width":"50%","padding-left":"40%"});
+    // },
+
     handleRemove(file, fileList) {
       console.log(file, fileList);
     },
+
+    handleRemove1(file, fileList) {
+      var name = file.name;
+      let index;
+      for (var i = 0; i < this.details.length; i++) {
+        if (name === this.details[i].name) {
+          index = i;
+          break;
+        }
+      }
+      this.details.splice(index, 1);
+    },
     handlePreview(file) {
+      //$(".el-upload-list").css({"width":"50%","padding-left":"40%"});
       console.log(file);
     },
     handleExceed(files, fileList) {
@@ -414,37 +540,86 @@ export default {
     },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
-        if (true) {
-          this.productForm.category.categoryName = this.productForm.productCategory;
-          this.$http.post("/api/saveProduct",JSON.stringify(this.productForm),{headers:{"token":this.token}})
-          .then(res=>{
-            if (res.data.code === 200) {
-              this.$notify({
-                type:"success",
-                message:"添加成功！"
-              });
-              this.$router.push("/productList");
-            }else if (res.data.code === 405) {
-              this.$message({
-                type:"error",
-                message:"身份失效，请重新登录！"
-              });
-              this.$router.push("/login");
-            }else {
-              this.$message({
-                type:"error",
-                message:"添加失败！"
-              });
+        if (!this.isUpdate) {
+          if (true) {
+            this.productForm.category.categoryName = this.productForm.productCategory;
+            for (var i = 0; i < this.details.length; i++) {
+              this.productForm.productDetails[i].detailImg = this.details[i].url;
+              this.productForm.productDetails[i].imgName = this.details[i].name;
             }
-          }).catch(err=>{
-            this.$message({
-                type:"error",
-                message:"网络错误，请重试！"
+            this.loading = true;
+            this.$http
+              .post("/api/saveProduct", JSON.stringify(this.productForm), {
+                headers: { token: this.token }
+              })
+              .then(res => {
+                if (res.data.code === 200) {
+                  this.loading = false;
+                  this.$notify({
+                    type: "success",
+                    message: "添加成功！"
+                  });
+                  this.$router.push("/productList");
+                } else if (res.data.code === 405) {
+                  this.loading = false;
+                  this.$message({
+                    type: "error",
+                    message: "身份失效，请重新登录！"
+                  });
+                  this.$router.push("/login");
+                } else {
+                  this.loading = false;
+                  this.$message({
+                    type: "error",
+                    message: "添加失败！"
+                  });
+                }
+              })
+              .catch(err => {
+                this.$message({
+                  type: "error",
+                  message: "网络错误，请重试！"
+                });
               });
-          })
+          } else {
+            console.log("error submit!!");
+            return false;
+          }
         } else {
-          console.log("error submit!!");
-          return false;
+          let len = this.productForm.productDetails.length - 1;
+          for (var i = 0; i < this.details.length; i++) {
+            this.productForm.productDetails[i + len].detailImg = this.details[i].url;
+            this.productForm.productDetails[i + len].detailName = this.details[i].name;
+          }
+          this.productForm.productCategory = this.productForm.category.categoryName;
+          this.loading = true;
+          this.$http
+            .post("/api/updateProduct", JSON.stringify(this.productForm), {
+              headers: { token: this.token }
+            })
+            .then(res => {
+              if (res.data.code === 200) {
+                this.loading = false;
+                this.$notify({
+                  type: "success",
+                  message: "更新成功!"
+                });
+                this.$router.push("/productList");
+              } else if (res.data.code === 405) {
+                this.loading = false;
+                this.$message({
+                  type: "error",
+                  message: "身份失效，请重新登录!"
+                });
+                this.$router.push("/login");
+              }
+            })
+            .catch(err => {
+              this.$message({
+                type: "error",
+                message: "网络错误!"
+              });
+            });
         }
       });
     },
@@ -486,7 +661,11 @@ div .is-required {
   float: left;
   padding-top: 10px;
 }
- li .is-success{
+li .is-success {
+  padding-left: 40%;
+}
+ul .el-upload-list {
+  width: 50%;
   padding-left: 40%;
 }
 </style>

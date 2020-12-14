@@ -15,4 +15,6 @@ public interface ArticleService {
     List<Article> getAll();
     boolean update(Article article);
     boolean delete(Integer id);
+    Article getArticleDetailById(Integer id);
+    List<Article> getArticles();
 }

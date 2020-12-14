@@ -18,7 +18,17 @@
         </el-table-column>
         <el-table-column prop="author" label="作者" align="center" fix>
         </el-table-column>
-        <el-table-column prop="createDate" label="发布时间" align="center" fix>
+         <el-table-column prop="coverImg" label="文章封面" align="center" fix>
+          <template slot-scope="scope">
+            <el-image
+              style="width: 50px; height: 50px"
+              :src="scope.row.coverImg" 
+              :preview-src-list="scope.row.imgList"
+              fit="contains"
+          ></el-image>
+          </template>
+        </el-table-column>
+        <el-table-column prop="updateDate" label="发布时间" align="center" fix>
         </el-table-column>
         <el-table-column prop="operation" label="操作" align="center" fix>
           <template slot-scope="scope">
@@ -26,22 +36,22 @@
               type="success"
               icon="el-icon-view"
               size="mini"
-              @click="view(scope.row)"
+              @click="view(scope.row.id)"
               ></el-button
             >
             <el-button
               type="primary"
               icon="el-icon-edit"
               size="mini"
-              @click="edit(scope.row)"
-              >修改</el-button
+              @click="edit(scope.row.id)"
+              ></el-button
             >
             <el-button
               type="danger"
               icon="el-icon-delete"
               size="mini"
               @click="del(scope.row)"
-              >删除</el-button
+              ></el-button
             >
           </template>
         </el-table-column>
@@ -72,10 +82,11 @@
             <span class="box">文章管理 / 文章详情</span>
           </div>
         </div>
-        <div class="articleDetail">
+        <div class="articleDetail" v-loading="loading"
+        element-loading-text="拼命加载中">
           <h3>{{ article.title }}</h3>
           <p>作者: {{ article.author }}</p>
-          <p>发布时间: {{ article.createDate }}</p>
+          <p>发布时间: {{ article.updateDate }}</p>
           <hr />
           <div v-html="article.content" class="content-detail"></div>
         </div>
@@ -103,6 +114,7 @@ export default {
         createDate: "",
         content: ""
       },
+      loading:false,
       height:"100px"
     };
   },
@@ -120,20 +132,34 @@ export default {
     addArticle() {
       this.$router.push({ path: "/imcode" });
     },
-    view(data) {
+    view(id) {
       //this.$router.push({ name: "articleView", params: { data: data } });
       this.dialogVisible = true;
-      this.article = data;
-      
-      this.$refs.tk.$el.firstChild.style.height = '240%';
+      this.loading = true;
+      this.$http.get("/api/getArticleByid?id="+id,{headers:{"token":this.token}})
+      .then(res =>{
+        if (res.data.code === 200) {
+          this.article = res.data.data;
+          this.loading = false;
+        }else if (res.data.code === 405) {
+          this.$message({
+            type:"error",
+            message:"身份失效，请重新登录!"
+          });
+          this.$router.push("/login");
+        }
+      })
+      //$(".el-dialog__wrapper").css({"overflow":"auto"});
+       $(".el-dialog").css({"overflow":"auto"});
+      this.$refs.tk.$el.firstChild.style.height = 'calc(100% - 65px)';
       //this.height = window.innerHeight + "px";
     },
     handleClose(done) {
             done();
       },
     // 编辑文章
-    edit(data) {
-      this.$router.push({ name: "imcode", params: { data: data } });
+    edit(id) {
+      this.$router.push({ path: "/imcode", query: { id: id } });
     },
     // 删除文章
     del(data) {
@@ -183,6 +209,11 @@ export default {
         .then(res => {
            if (res.data.code === 200) {
              this.articleData = res.data.list;
+             for (let i=0;i<this.articleData.length;i++) {
+              let imgList = [];
+              imgList.push(this.articleData[i].coverImg);
+              this.articleData[i].imgList = imgList;
+            }
              this.total = res.data.count;
              this.loading = false;
            }else if (res.data.code === 405) {

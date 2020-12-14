@@ -158,6 +158,15 @@ public class BannerController {
         }
     }
 
+    @ApiOperation("广告位轮播图")
+    @GetMapping("/getBanners")
+
+    public ResponseResult getBanners(HttpServletRequest request, HttpServletResponse response) {
+
+        return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(), bannerService.getBanners());
+
+    }
+
     private boolean isExpire(String token) {
         String value = (String) redisUtils.get(token);
         return value == null ? true : false;

@@ -2,10 +2,15 @@
   <div class="addpicture">
     <div>
       <div class="bar">
-        <span class="box">图片管理 / {{operation}}图片</span>
+        <span class="box">图片管理 / {{ operation }}图片</span>
       </div>
     </div>
-    <div class="form">
+    <div
+      class="form"
+      v-loading="loading"
+      element-loading-text="提交中....."
+      element-loading-spinner="el-icon-loading"
+    >
       <el-form
         :model="pictureForm"
         :rules="rules"
@@ -22,7 +27,7 @@
         <el-form-item label="图片位置" prop="bannerPosition">
           <span
             ><el-select
-              v-model="pictureForm.bannerPosition" 
+              v-model="pictureForm.bannerPosition"
               filterable
               placeholder="请选择图片位置"
               style="width:100%"
@@ -36,9 +41,11 @@
           ></span>
         </el-form-item>
         <el-form-item label="上传图片" prop="bannerUrl">
-          <el-upload v-model="pictureForm.bannerUrl"
+          <el-upload
             class="upload-demo"
             action="/api/setFileUpload"
+            :on-change="getFile"
+            :with-credentials="true"
             :on-preview="handlePreview"
             :on-remove="handleRemove"
             :before-remove="beforeRemove"
@@ -49,7 +56,9 @@
             :on-exceed="handleExceed"
             :file-list="imgs"
           >
-            <el-button size="small" type="primary" style="margin-left:-300px;">点击上传</el-button>
+            <el-button size="small" type="primary" style="margin-left:-300px;"
+              >点击上传</el-button
+            >
             <div slot="tip" class="el-upload__tip">
               只能上传jpg/png文件，且不超过2M
             </div>
@@ -62,7 +71,7 @@
             <el-radio label="其他"></el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="跳转链接" prop="jumpLink">
+        <el-form-item label="跳转链接" prop="jumpLink" style="width:80%;">
           <el-input
             v-model="pictureForm.jumpLink"
             placeholder="http://www.link.com"
@@ -74,17 +83,23 @@
             <el-radio label="新页面"></el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="图片排序" prop="order">
-          <el-input
-            v-model="pictureForm.order"
-            placeholder="1"
-          ></el-input>
+        <el-form-item label="图片排序" prop="order" style="width:80%;">
+          <el-input v-model="pictureForm.order" placeholder="1"></el-input>
         </el-form-item>
         <el-form-item style="float:right;margin-right:20%;">
-          <el-button type="danger" @click="submitForm('pictureForm')" style="background:#ff3300;width:100px;"
+          <el-button
+            type="danger"
+            @click="submitForm('pictureForm')"
+            style="background:#ff3300;width:100px;"
             >确定</el-button
           >
-          <el-button type="info" plain @click="cancel('pictureForm')" style="width:100px;">取消</el-button>
+          <el-button
+            type="info"
+            plain
+            @click="cancel('pictureForm')"
+            style="width:100px;"
+            >取消</el-button
+          >
         </el-form-item>
       </el-form>
     </div>
@@ -92,25 +107,27 @@
 </template>
 
 <script>
-import imcoderTinymce from '../article/imcoder-tinymce.vue';
-import $ from 'jquery'
+import imcoderTinymce from "../article/imcoder-tinymce.vue";
+import $ from "jquery";
 export default {
   name: "addPicture",
   data() {
     return {
-      operation:"添加",
-      flag:false,
+      operation: "添加",
+      flag: false,
       pictureForm: {
         bannerName: "",
         bannerPosition: "",
-        bannerUrl:"",
+        bannerUrl: "",
+        imgName: "",
         linkeType: "",
         jumpLink: "",
         linkWay: "",
         order: ""
       },
       imgs: [],
-      img:"",
+      img: "",
+      url: "http://106.52.108.173:8081/",
       rules: {
         bannerName: [
           { required: true, message: "请输入图片名称", trigger: "blur" },
@@ -118,22 +135,6 @@ export default {
         ],
         bannerPosition: [
           { required: true, message: "请选择图片位置", trigger: "blur" }
-        ],
-        
-        bannerUrl: [
-          { required: true, message: "请上传", trigger: "change" }
-        ],
-        linkeType: [
-          { required: true, message: "请选择链接类型", trigger: "change" }
-        ],
-        jumpLink: [
-          { required: true, message: "请输入链接地址", trigger: "change" }
-        ],
-        linkWay: [
-          { required: true, message: "请输入链接方式", trigger: "change" }
-        ],
-        order: [
-          { required: true, message: "请输入图片排序", trigger: "change" }
         ]
       },
       options: [
@@ -151,112 +152,129 @@ export default {
         }
       ],
       value: "",
+      loading: false
     };
   },
   created() {
     var token = localStorage.getItem("token");
-    console.log("token",token)
+    console.log("token", token);
     if (!token) {
-      this.$router.push("/login")
+      this.$router.push("/login");
     }
-    let data = this.$route.params.data;
-    //alert(typeof(data))
-    if (data === undefined || data === null) {
-       this.operation = "添加";
-    }else {
+    let id = this.$route.query.id;
+    if (id === undefined || id === null) {
+      this.operation = "添加";
+    } else {
       this.flag = true; //代表是更新图片
       this.operation = "更新";
-      this.pictureForm = data;
-      this.imgs.push({name:this.pictureForm.bannerUrl.substring(this.pictureForm.bannerUrl.lastIndexOf("/")+1),url:this.pictureForm.bannerUrl});
+      this.getBannerById(id);
     }
   },
   mounted() {
-    $('.el-upload-list').css({"width":"50%","padding-left":"40%"});
+    $(".el-upload-list").css({ width: "50%", "padding-left": "25%" });
   },
   methods: {
     handleRemove(file, fileList) {
-        this.imgs.pop();
-      },
-      handlePreview(file) {
-        console.log(file);
-      },
-      handleExceed(files, fileList) {
-        this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
-      },
-      beforeRemove(file, fileList) {
-        return this.$confirm(`确定移除 ${ file.name }？`);
-      },
-      onSuccess(response,file,fileList) {
-        this.pictureForm.bannerUrl = response.data;
-        this.imgs.push({name:file.name,url:response.data.split(",")[0]});
-        $('.el-upload-list').css({"width":"50%","padding-left":"40%"});
-      },
+      this.imgs.pop();
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
+    handleExceed(files, fileList) {
+      this.$message.warning(
+        `当前限制选择 1 个文件，本次选择了 ${
+          files.length
+        } 个文件，共选择了 ${files.length + fileList.length} 个文件`
+      );
+    },
+    beforeRemove(file, fileList) {
+      return this.$confirm(`确定移除 ${file.name}？`);
+    },
+    onSuccess(response, file, fileList) {
+      $(".el-upload-list").css({ width: "50%", "padding-left": "30%" });
+    },
+    getFile(file, fileList) {
+      this.pictureForm.imgName = file.name;
+      this.pictureForm.bannerUrl = this.url + file.name;
+    },
+    getBase64(file) {
+      return new Promise(function(resolve, reject) {
+        let reader = new FileReader();
+        let imgResult = "";
+        reader.readAsDataURL(file);
+        reader.onload = function() {
+          imgResult = reader.result;
+        };
+        reader.onerror = function(error) {
+          reject(error);
+        };
+        reader.onloadend = function() {
+          resolve(imgResult);
+        };
+      });
+    },
+    getBannerById(id) {
+      let token = localStorage.getItem("token");
+      if (id !== null && id !== undefined) {
+        this.$http
+          .get("/api/findBannerById?id=" + id, { headers: { token: token } })
+          .then(res => {
+            if (res.data.code === 200) {
+              this.pictureForm = res.data.data;
+              this.imgs.push({
+                name: this.pictureForm.imgName,
+                url: this.pictureForm.bannerUrl
+              });
+            }
+          });
+      }
+    },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
-          let token  = localStorage.getItem("token");
-          if (token) {
-            if (!this.flag) {
-              this.$http.post("/api/saveBanner",JSON.stringify(this.pictureForm),{headers:{"token":token}}
-             ).then((res=>{
-               if (res.data.code === 200 ){
-                 this.$notify({
-                   type: "success",
-                   message: "添加成功!"
-                 });
-                 this.$router.push("/pictureManager");
-               }else if(res.data.code === 405){
-                 this.$message({
-                   type: "error",
-                   message: "身份失效，请重新登录!"
-                 });
-                 this.$router.push("/login");
-               } else {
-                  this.$message({
-                   type: "error",
-                   message: "添加失败!"
-                 });
-               }
-             })).catch((err=>{
-               this.$message({
-                   type: "error",
-                   message: "网络异常!"
-                 });
-             }));
-            }else {
-              this.$http.post("/api/updateBanner",JSON.stringify(this.pictureForm),{headers:{"token":token}}
-             ).then((res=>{
-               if (res.data.code == 200 ){
-                 this.$notify({
-                   type: "success",
-                   message: "更新成功!"
-                 });
-                 this.$router.push("/pictureManager");
-               }else if(res.data.code === 405) {
-                 this.$message({
-                   type: "error",
-                   message: "身份失效，请重新登录!"
-                 });
-                 this.$router.push("/login");
-               }else {
-                  this.$message({
-                   type: "error",
-                   message: "更新失败!"
-                 });
-               }
-             })).catch((err=>{
-               this.$message({
-                   type: "error",
-                   message: "网络异常!"
-                 });
-             }));
-            }
-          }else {
-            this.$message({
-              type:"error",
-              message:"身份过期，请重新登录!"
+        let token = localStorage.getItem("token");
+        this.loading = true;
+        if (token) {
+          this.$http
+            .post("/api/saveBanner", JSON.stringify(this.pictureForm), {
+              headers: { token: token }
             })
-            this.$router.push("/login");
-          }
+            .then(res => {
+              if (res.data.code === 200) {
+                this.loading = false;
+                this.$notify({
+                  type: "success",
+                  message: this.operation + "成功!"
+                });
+                this.$router.push("/pictureManager");
+              } else if (res.data.code === 405) {
+                this.loading = false;
+                this.$message({
+                  type: "error",
+                  message: "身份失效，请重新登录!"
+                });
+                this.$router.push("/login");
+              } else {
+                this.loading = false;
+                this.$message({
+                  type: "error",
+                  message: this.operation + "失败!"
+                });
+              }
+            })
+            .catch(err => {
+              this.$message({
+                type: "error",
+                message: "网络异常!"
+              });
+            });
+        } else {
+          this.loading = false;
+          this.$message({
+            type: "error",
+            message: "身份过期，请重新登录!"
+          });
+          this.$router.push("/login");
+        }
       });
     },
     cancel(formName) {
@@ -290,7 +308,7 @@ div .is-required {
   width: 80%;
 }
 .upload-demo {
-    margin-left: -300px;
+  margin-left: -300px;
 }
 .linkWay {
   padding-left: 20px !important;

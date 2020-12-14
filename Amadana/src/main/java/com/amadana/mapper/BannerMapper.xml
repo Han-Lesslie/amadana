@@ -18,21 +18,24 @@
         <result column="updateTime" property="updateTime"/>
     </resultMap>
     <!-- 添加图片   -->
-    <insert id="save" parameterType="com.amadana.entity.Banner" useGeneratedKeys="true" >
-        insert into tb_images(image_name,img_position,img,imgName,link_type,jump_link,link_way,img_order
+    <insert id="save" parameterType="com.amadana.entity.Banner" useGeneratedKeys="true" keyProperty="id">
+        <selectKey resultType="int" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID() AS id
+        </selectKey>
+        insert into tb_images(image_name,img_position,img,link_type,jump_link,link_way,img_order
         ,createTime)
-        values(#{bannerName},#{bannerPosition},#{bannerUrl},#{imgName},#{linkeType},#{jumpLink}
-        ,#{linkWay},#{order},#{createTime})
+        values(#{bannerName},#{bannerPosition},#{bannerUrl},#{linkeType},#{jumpLink}
+        ,#{linkWay},#{order},now())
     </insert>
     <!--  图片分页  -->
     <select id="findAll" parameterType="int" resultMap="bannerMapper">
-        select id,img_position,image_name,
+        select id,img_position,image_name,img,
          img_order from tb_images where status = 1 order by img_order
     </select>
     <!--    删除图片-->
-    <update id="delete" parameterType="int">
-        update tb_images set status = 0 where id = #{id}
-    </update>
+    <delete id="delete" parameterType="int">
+        delete from tb_images where id = #{id}
+    </delete>
 
     <select id="searchByImgPosition" parameterType="java.lang.String" resultMap="bannerMapper">
         select id,img_position,image_name,
@@ -71,9 +74,11 @@
         <if test="order != null and order != ''">
             img_order = #{order} ,
         </if>
-        <if test="updateTime != null and updateTime != ''">
-            updateTime = #{updateTime}
-        </if>
+        updateTime = now()
         where status = 1 and id = #{id}
     </update>
+
+    <select id="getBanners" resultMap="bannerMapper">
+        select id,img from tb_images where status = 1 limit 5
+    </select>
 </mapper>

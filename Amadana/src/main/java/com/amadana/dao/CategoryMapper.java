@@ -7,4 +7,5 @@ import java.util.List;
 public interface CategoryMapper extends BaseMapper {
 
     List<Category> findCategoryByName(String categoryName);
+    List<Category> getAllCategory();
 }

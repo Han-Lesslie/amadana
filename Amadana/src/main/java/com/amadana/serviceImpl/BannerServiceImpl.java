@@ -1,6 +1,7 @@
 package com.amadana.serviceImpl;
 
 import com.amadana.dao.BannerMapper;
+import com.amadana.dao.DetailMapper;
 import com.amadana.entity.Banner;
 import com.amadana.enums.StateCode;
 import com.amadana.result.Expection;
@@ -13,11 +14,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.logging.LoggerGroup;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class BannerServiceImpl implements BannerService {
@@ -33,20 +32,13 @@ public class BannerServiceImpl implements BannerService {
             return new Expection(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }
 
-        if (null == banner.getBannerUrl() || "".equals(banner.getBannerUrl())) {
-            return new Expection(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
-        }else {
-            //将字符串分成数组
-            String[] d = banner.getBannerUrl().split("base64,");
-            if(d == null || d.length != 2) {
-                return new Expection(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
-            }
-        }
-        LOGGER.info("banner:{}",banner);
-        banner.setCreateTime(DateFormat.dateFormat(new Date()));
         int count = 0;
         try {
-            count = bannerMapper.save(banner);
+            if (banner.getId() != null) {
+                count = bannerMapper.update(banner);
+            }else {
+                count = bannerMapper.save(banner);
+            }
             if (count > 0) {
                 return new Expection(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
             }else {
@@ -68,12 +60,17 @@ public class BannerServiceImpl implements BannerService {
         return  pageInfo;
     }
 
+
+
     @Override
     public boolean delete(Integer id) {
         if (null == id) {
             return false;
         }
         try {
+            // 删除banner对应的文件
+            String fileName = bannerMapper.findBannerById(id).getImgName();
+            fileUploadService.deteleFile(fileName);
             int count = bannerMapper.delete(id);
             return count <= 0 ? false : true;
         }catch (Exception e) {
@@ -101,7 +98,6 @@ public class BannerServiceImpl implements BannerService {
             return false;
         }
         try {
-            //banner.setBannerUrl((String) fileUploadService.getPath().get("path"));
             banner.setUpdateTime(DateFormat.dateFormat(new Date()));
             int count = bannerMapper.update(banner);
             return count > 0 ? true : false;
@@ -123,5 +119,17 @@ public class BannerServiceImpl implements BannerService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public List<Banner> getBanners() {
+        List<Banner> banners = null;
+        try{
+            banners = bannerMapper.getBanners();
+        }catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+        return (null == banners || 0 == banners.size()) ? new ArrayList<>() : banners;
     }
 }

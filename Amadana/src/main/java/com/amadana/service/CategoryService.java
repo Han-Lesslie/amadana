@@ -15,4 +15,5 @@ public interface CategoryService {
     boolean updateCategory(Category category);
     boolean saveCategory(Category category);
     List<Category> findAll();
+    List<Category> getAllCategory();
 }

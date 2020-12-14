@@ -40,17 +40,20 @@
             select LAST_INSERT_ID() as pid
         </selectKey>
 
-        insert into tb_product_detail(detail_img,detailName,img_name,img_desc,detail_link,product_id,createTime)
+        insert into tb_product_detail(detail_img,detailName,img_name,img_desc,detail_link,product_id,createTime,updateTime)
         values
         <foreach collection="list" index="index" item="item" separator=",">
-            (#{item.detailImg},#{item.detailName},#{item.imgName},#{item.imgDesc},#{item.detailLink},#{item.product.id},#{item.createTime})
+            (#{item.detailImg},#{item.detailName},#{item.imgName},#{item.imgDesc},#{item.detailLink},#{item.product.id},now(),now())
         </foreach>
     </insert>
 
-    <update id="delete" parameterType="int">
-        update  tb_product_detail set status = 0 where product_id = #{id}
-    </update>
+    <delete id="delete" parameterType="int">
+        delete from tb_product_detail where product_id = #{id}
+    </delete>
 
+    <delete id="deleteDetailById" parameterType="int">
+        delete  from tb_product_detail where pid = #{id}
+    </delete>
     <!--更新产品详情信息-->
     <update id="update" parameterType="com.amadana.entity.ProductDetail">
         update  tb_product_detail set

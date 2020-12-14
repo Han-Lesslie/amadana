@@ -53,7 +53,11 @@
         where id = #{id}
     </update>
 
-    <update id="delete" parameterType="int">
-        update tb_video set status = 0 where id = #{id}
-    </update>
+    <delete id="delete" parameterType="int">
+        delete from tb_video  where id = #{id}
+    </delete>
+
+    <select id="getVideoById" parameterType="int" resultMap="videoMapper">
+        select id,videoName,title,videoDesc,videoImg,videoCover,videoPath from tb_video where id = #{id}
+    </select>
 </mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.amadana.dao.DetailMapper">
+    <resultMap type="com.amadana.entity.Detail" id="detailMapper">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="url" property="url"/>
+    </resultMap>
+    <insert id="save" parameterType="com.amadana.entity.Detail" useGeneratedKeys="true">
+        insert into tb_detail(name,url) values(#{name},#{url})
+    </insert>
+
+    <select id="findDetailByName" parameterType="string" resultMap="detailMapper">
+        select id,name,url from tb_detail where name = #{name}
+    </select>
+
+    <select id="getDetails" resultMap="detailMapper">
+        select id,name,url from tb_detail where banner_id != ''
+    </select>
+
+    <update id="updateByName" parameterType="map">
+        update tb_detail set banner_id = #{id} where name = #{name}
+    </update>
+
+    <delete id="deleteDetailById" parameterType="int">
+        delete from tb_detail where banner_id = #{id}
+    </delete>
+</mapper>

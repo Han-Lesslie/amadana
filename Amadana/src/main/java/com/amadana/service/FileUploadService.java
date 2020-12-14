@@ -8,6 +8,8 @@ import java.util.Map;
 
 public interface FileUploadService {
     Map<String,Object> uploadPicture(MultipartFile file) throws IOException;
-    Map<String,Object> getPath();
-    List<String> getFileNames();
+
+    Map<String,Object> uploadVideo(MultipartFile file) throws IOException;
+    boolean downloadFile(String fileName);
+    void deteleFile(String name);
 }

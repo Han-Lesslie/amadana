@@ -3,6 +3,7 @@ package com.amadana.serviceImpl;
 import com.amadana.dao.ArticleMapper;
 import com.amadana.entity.Article;
 import com.amadana.service.ArticleService;
+import com.amadana.service.FileUploadService;
 import com.amadana.utils.DateFormat;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +20,8 @@ import java.util.List;
 public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private ArticleMapper articleMapper;
+    @Autowired
+    private FileUploadService fileUploadService;
     @Override
     public boolean saveArticle(Article article) {
         Date currentTime = new Date();
@@ -29,7 +33,7 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public Article getArticleById(Integer id) {
         if (null != id) {
-            return articleMapper.getArticleById(id);
+            return articleMapper.getArticleDetailById(id);
         }
         return null;
     }
@@ -78,12 +82,34 @@ public class ArticleServiceImpl implements ArticleService {
             return false;
         }
         try {
+            Article article = articleMapper.getArticleDetailById(id);
+            fileUploadService.deteleFile(article.getImgName());
             int count = articleMapper.delete(id);
             return count <= 0 ? false : true;
         }catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    public Article getArticleDetailById(Integer id) {
+        if (null != id) {
+            return articleMapper.getArticleDetailById(id);
+        }
+        return null;
+    }
+
+    @Override
+    public List<Article> getArticles() {
+        List<Article> articles = null;
+        try {
+            articles = articleMapper.getArticles();
+        }catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+        return (null == articles || 0 == articles.size()) ? new ArrayList<>() : articles;
     }
 }
 

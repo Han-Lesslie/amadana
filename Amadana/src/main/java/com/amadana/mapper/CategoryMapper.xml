@@ -37,4 +37,8 @@
         select id ,category_name ,category_order from tb_category where status = 1
         and category_name like '%${categoryName}%'
     </select>
+
+    <select id="getAllCategory" resultMap="categoryMapper">
+        select category_name from tb_category where status = 1
+    </select>
 </mapper>
