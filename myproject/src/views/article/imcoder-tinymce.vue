@@ -11,6 +11,9 @@
         ref="articleForm"
         label-width="100px"
         class="demo-articleForm"
+        v-loading="loading"
+        element-loading-text="提交中....."
+        element-loading-spinner="el-icon-loading"
       >
         <el-form-item label="标题" prop="title">
           <el-input
@@ -205,6 +208,7 @@ export default {
       isUpdate: false, //是否为更新,
       operation:"添加",
       imgs: [],
+      loading:false,
       url: "http://106.52.108.173:8081/",
       rules: {
         title: [
@@ -261,7 +265,6 @@ export default {
   methods: {
     getArticle(id) {
       var token = localStorage.getItem("token");
-      console.log("token ===== " + token);
       this.$http
         .get("/api/getArticleByid?id=" + id, { headers: { token: token } })
         .then(res => {
@@ -306,7 +309,6 @@ export default {
     },
     onSuccess(response, file, fileList) {
       this.articleForm.coverImg = response.data;
-      //this.imgs.push({name:file.name,url:response.data.split(",")[0]});
       $(".el-upload-list").css({ width: "50%", "padding-left": "40%" });
     },
     getFile(file, fileList) {
@@ -336,24 +338,27 @@ export default {
         if (valid) {
           let token = localStorage.getItem("token");
           if (token) {
-            //this.articleForm.title = "<h2>" + this.articleForm.title + "</h2>"
+            this.loading = true;
             this.$http
               .post("/api/publish", JSON.stringify(this.articleForm), {
                 headers: { token: token }
               })
               .then(res => {
                 if (res.data.code === 200) {
+                  this.loading = false;
                   this.$notify({
                     type: "success",
                     message: this.operation + "成功！"
                   });
                   this.$router.push("/articleManager");
                 } else if (res.data.code === 1023) {
+                  this.loading = false;
                   this.$notify({
                     type: "error",
                     message: this.operation + "失败！"
                   });
                 } else if (res.data.code === 405) {
+                  this.loading = false;
                   this.$message({
                     type: "error",
                     message: "身份失效，请重新登录!"
@@ -362,12 +367,14 @@ export default {
                 }
               })
               .catch(err => {
+                this.loading = false;
                 this.$message({
                   type: "error",
                   message: "网络错误，请重试！"
                 });
               });
           } else {
+            this.loading = false;
             this.$message({
               type: "error",
               message: "身份过期，请重新登录！"

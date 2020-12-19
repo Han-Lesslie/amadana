@@ -26,7 +26,7 @@
     </select>
 
     <select id="getVideos" resultMap="videoMapper">
-        select id,title,videoDesc,videoImg,videoPath from tb_video where status = 1 order by createTime desc limit 3
+        select id,title,videoDesc,videoImg,videoPath from tb_video where status = 1 order by updateTime desc limit 3
     </select>
 
     <update id="update" parameterType="com.amadana.entity.Video">

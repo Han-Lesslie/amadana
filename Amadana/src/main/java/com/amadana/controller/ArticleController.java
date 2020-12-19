@@ -53,12 +53,11 @@ public class ArticleController {
             redisUtils.setExpire(token,token, Constant.EXPIRE_TIME);
             if (isSuccess) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+
     }
 
     /**
@@ -97,9 +96,9 @@ public class ArticleController {
             PageInfo pageInfo = articleService.listArtcileByPage(currentPage,pageSize);
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage()
             , (int) pageInfo.getTotal(),pageInfo.getList());
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+
     }
 
     /**
@@ -121,12 +120,11 @@ public class ArticleController {
             redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
             if (state) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
+
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     /**
@@ -149,12 +147,11 @@ public class ArticleController {
             redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
             if (state) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+
     }
 
     /**

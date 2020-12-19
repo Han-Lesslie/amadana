@@ -193,13 +193,13 @@
             </div>
             <el-form-item
               style="width:80%;"
-              label="图片名称"
+              label="标题"
               :prop="'请填写图片名称'"
               :rules="[
                 { required: false, message: '请填写图片名称', trigger: 'blur' }
               ]"
             >
-              <el-input v-model="item.imgName"></el-input>
+              <el-input v-model="item.detailName"></el-input>
             </el-form-item>
             <el-form-item
               style="width:80%;"
@@ -589,7 +589,7 @@ export default {
           let len = this.productForm.productDetails.length - 1;
           for (var i = 0; i < this.details.length; i++) {
             this.productForm.productDetails[i + len].detailImg = this.details[i].url;
-            this.productForm.productDetails[i + len].detailName = this.details[i].name;
+            this.productForm.productDetails[i + len].imgName = this.details[i].name;
           }
           this.productForm.productCategory = this.productForm.category.categoryName;
           this.loading = true;

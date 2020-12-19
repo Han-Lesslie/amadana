@@ -54,12 +54,10 @@ public class CategoryController {
             if (pageInfo != null) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),
                         (int) pageInfo.getTotal(),pageInfo.getList());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     /**
@@ -79,12 +77,10 @@ public class CategoryController {
             boolean flag = categoryService.saveCategory(category);
             if (flag) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     /**
@@ -105,12 +101,10 @@ public class CategoryController {
             boolean flag = categoryService.updateCategory(category);
             if (flag) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     /**
@@ -128,9 +122,8 @@ public class CategoryController {
             redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),
                     categoryService.findAll());
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
     /**
      * 删除产品分类
@@ -150,12 +143,10 @@ public class CategoryController {
             boolean flag = categoryService.deleteCategory(id);
             if (flag) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     /**

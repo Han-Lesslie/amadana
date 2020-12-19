@@ -52,9 +52,8 @@ public class UserController {
                 String token = TokenService.getToken(user);
                 redisUtils.setExpire(token,token, Constant.EXPIRE_TIME);
                 return new ResponseResult(expection.getCode(),expection.getMsg(),token);
-            }else {
-               return new ResponseResult(expection.getCode(),expection.getMsg());
             }
+            return new ResponseResult(expection.getCode(),expection.getMsg());
         }catch (Exception e) {
             e.printStackTrace();
             return new ResponseResult(StateCode.INTERNET_ERROR.getCode(),StateCode.INTERNET_ERROR.getMessage());
@@ -81,9 +80,8 @@ public class UserController {
             redisUtils.setExpire(token,null,0);
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
 
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
 }

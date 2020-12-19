@@ -184,7 +184,7 @@ export default {
 
 <style scoped>
 .main-login {
-  background: url("../assets/mountains.jpg") no-repeat center fixed;
+  background: url("../assets/banner5.jpg") no-repeat center fixed;
   background-size: cover;
   background-size: 100% 100%;
  height: 100%;
@@ -192,7 +192,7 @@ export default {
  width: 100%
 }
 .title {
-  color:	black;
+  color:	white;
   margin-top:12%;
   margin-bottom:-2%;
   font-family:STXingkai;

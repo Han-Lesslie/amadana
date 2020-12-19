@@ -21,4 +21,5 @@ public interface ProductMapper extends BaseMapper {
     List<Product> getProductByCategory(Integer id);
 
     Product productDetail(Integer id);
+
 }

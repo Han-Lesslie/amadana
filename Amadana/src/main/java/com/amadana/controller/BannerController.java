@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @Api(tags = "图片管理接口")
 @RestController
@@ -50,15 +51,14 @@ public class BannerController {
 
             if (expection.getCode() == Constant.SUCCESS_CODE) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
+
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
-    @ApiOperation("图片分页")
+    /*@ApiOperation("图片分页")
     @GetMapping("/getBanner")
     @UserLoginToken
     public ResponseResult getPage(@ApiParam("当前页")@RequestParam("currentPage") int currentPage, @ApiParam("页数")@RequestParam("pageSize")int pageSize,
@@ -72,10 +72,26 @@ public class BannerController {
             PageInfo pageInfo = bannerService.findByPage(currentPage,pageSize);
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),
                     (int) pageInfo.getTotal(),pageInfo.getList());
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+    }*/
 
+
+    @ApiOperation("图片分页")
+    @PostMapping("/getBanner")
+    @UserLoginToken
+    public ResponseResult getPage(@RequestBody Map<String,Object> map, HttpServletRequest request, HttpServletResponse response) {
+
+        String token = request.getHeader("token");
+        boolean isExpire = isExpire(token);
+
+        if (!isExpire) {
+            redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
+            PageInfo pageInfo = bannerService.findByPage(map);
+            return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),
+                    (int) pageInfo.getTotal(),pageInfo.getList());
+        }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     @ApiOperation("删除图片")
@@ -91,12 +107,10 @@ public class BannerController {
             boolean state = bannerService.delete(id);
             if (state) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     @ApiOperation("图片搜索与分页")
@@ -113,9 +127,8 @@ public class BannerController {
             PageInfo pageInfo = bannerService.searchByImgPosition(currentPage,pageSize,imgPosition);
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),
                     (int) pageInfo.getTotal(),pageInfo.getList());
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     @ApiOperation("根据id获取图片")
@@ -131,9 +144,8 @@ public class BannerController {
             Banner banner = bannerService.findBannerById(id);
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),
                     banner);
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     @ApiOperation("更新图片")
@@ -150,12 +162,11 @@ public class BannerController {
             boolean flag = bannerService.update(banner);
             if (flag) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
+
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     @ApiOperation("广告位轮播图")

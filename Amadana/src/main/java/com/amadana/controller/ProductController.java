@@ -50,9 +50,8 @@ public class ProductController {
             boolean flag = productService.saveProduct(product);
             if (flag) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }else {
             return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
@@ -70,31 +69,29 @@ public class ProductController {
             boolean flag = productService.updateProduct(product);
             if (flag) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }else {
             return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
     }
 
     @ApiOperation("产品分页")
-    @GetMapping("/findProduct")
+    @PostMapping("/findProduct")
     @UserLoginToken
-    public ResponseResult findProduct(@ApiParam("当前页")@RequestParam("currentPage")int currentPage,@ApiParam("页数")@RequestParam("pageSize")int pageSize,
-                                      HttpServletRequest request,HttpServletResponse response) {
+    public ResponseResult findProduct(@RequestBody Map<String,Object> map, HttpServletRequest request,HttpServletResponse response) {
         String token = request.getHeader("token");
         boolean isExpire = isExpire(token);
 
         if (!isExpire) {
             redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
-            PageInfo pageInfo = productService.findAdd(currentPage,pageSize);
+            PageInfo pageInfo = productService.findProducts(map);
 
             if (null == pageInfo) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(), (int) pageInfo.getTotal(),pageInfo.getList());
             }
+            return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(), (int) pageInfo.getTotal(),pageInfo.getList());
+
         }else {
             return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
@@ -111,9 +108,9 @@ public class ProductController {
             boolean result = productService.deleteProuct(product);
             if (result) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
+
         }else {
             return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
@@ -130,9 +127,9 @@ public class ProductController {
             redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
             List<Product> products = productService.findByProductId(id);
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),products);
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+
     }
 
     @ApiOperation("根据ID查找产品")
@@ -144,9 +141,9 @@ public class ProductController {
             redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
             Product product = productService.getProductById(id);
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),product);
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+
     }
 
     @ApiOperation("产品搜索")
@@ -162,9 +159,9 @@ public class ProductController {
 
             PageInfo pageInfo = productService.search(map,currentPage,pageSize);
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(), (int) pageInfo.getTotal(),pageInfo.getList());
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+
     }
 
     @ApiOperation("根据ID删除详情")
@@ -177,9 +174,9 @@ public class ProductController {
         if (!isExpire) {
             redisUtils.setExpire(token,token,Constant.EXPIRE_TIME);
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),productDetailMapper.deleteDetailById(id));
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
+
     }
 
     @GetMapping("/getProductByCategory")

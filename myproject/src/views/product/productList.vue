@@ -90,17 +90,13 @@ export default {
     return {
       productData: [],
       currentPage: 1,
-      pageSize: 5,
+      pageSize: 10,
       total: 1,
       token:"",
-      map:{},
       options: [
         
       ],
       value: "",
-      preList: [
-        "https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg"
-      ],
       searchForm: {
         productName: "",
         categoryName: ""
@@ -113,7 +109,7 @@ export default {
       this.$router.push("/login");
     }
     this.findAllCategory();
-    this.change(this.currentPage,this.pageSize,this.map,this.flag);
+    this.change(this.currentPage,this.pageSize);
   },
   methods: {
     findAllCategory(){
@@ -134,22 +130,11 @@ export default {
       this.$router.push({ path: "/addProduct" });
     },
     search() {
-      if (this.searchForm == null) {
-        return false;
-      }else {
-        this.map.productName = this.searchForm.productName;
-        this.map.categoryName = this.searchForm.categoryName;
-        this.map.currentPage = this.currentPage;
-        this.map.pageSize = this.pageSize;
-        this.flag = true;
-        this.change(this.currentPage,this.pageSize,this.map,this.flag);
-      }
+      this.change(this.currentPage,this.pageSize);
     },
     reset() {
       this.searchForm = {};
-      this.flag = false;
-      this.map = {};
-      this.change(this.currentPage,this.pageSize,this.map,this.flag);
+      this.change(this.currentPage,this.pageSize);
     },
     edit(data) {
       this.$router.push({name:"addProduct",params:{data:data}});
@@ -194,23 +179,24 @@ export default {
      },
     // 处理分页
     handleCurrentChange(page) {
-      this.change(page, this.pageSize,this.map,this.flag);
+      this.change(page, this.pageSize);
     },
     //请求分页
-    change(currentPage, pageSize,map,flag) {
-      this.loading = true;
-      if (!flag) {
+    change(currentPage, pageSize) {
+       let map = {};
+       map.currentPage = currentPage;
+       map.pageSize = pageSize;
+       map.productName = this.searchForm.productName;
+       map.categoryName = this.searchForm.categoryName;
+
         this.$http
-        .get(
-          "/api/findProduct?currentPage=" + currentPage + "&pageSize=" + pageSize,{headers:{"token":this.token}}
+        .post(
+          "/api/findProduct",JSON.stringify(map),{headers:{"token":this.token}}
         )
         .then(res => {
-           if (res.data.code === 200 && res.data.list !== null) {
-
+           if (res.data.code === 200) {
              this.productData = res.data.list;
-             console.log(this.productData)
              this.total = res.data.count;
-             this.loading = false;
            }else if (res.data.code === 405) {
              this.$message({
                type:"error",
@@ -219,28 +205,6 @@ export default {
              this.$router.push("/login")
            }
         });
-      }else {
-          this.$http.post("/api/searchProduct",map,{headers:{"token":this.token}})
-        .then(res => {
-          if (res.data.code === 200) {
-            this.productData = res.data.list;
-            this.total = res.data.count;
-            console.log(this.productData);
-          }else if (res.data.code === 405) {
-            this.$message({
-              type:"error",
-              message:"身份失效，请重新登录!"
-            });
-            this.$router.push("/login");
-          }
-        }).catch(err=>{
-            this.$message({
-              type:"error",
-              message:"网络异常，请重试!"
-            });
-          }
-        )
-      }
     }
   }
 };

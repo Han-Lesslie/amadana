@@ -1,7 +1,6 @@
 package com.amadana.serviceImpl;
 
 import com.amadana.dao.BannerMapper;
-import com.amadana.dao.DetailMapper;
 import com.amadana.entity.Banner;
 import com.amadana.enums.StateCode;
 import com.amadana.result.Expection;
@@ -26,6 +25,7 @@ public class BannerServiceImpl implements BannerService {
     private FileUploadService fileUploadService;
 
     private final static Logger LOGGER = LoggerFactory.getLogger(BannerServiceImpl.class);
+
     @Override
     public Expection saveBanner(Banner banner) {
         if (banner == null) {
@@ -34,16 +34,21 @@ public class BannerServiceImpl implements BannerService {
 
         int count = 0;
         try {
-            if (banner.getId() != null) {
+            /*if (banner.getId() != null) {
                 count = bannerMapper.update(banner);
             }else {
                 count = bannerMapper.save(banner);
-            }
-            if (count > 0) {
-                return new Expection(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
+            }*/
+            count = banner.getId() == null ? bannerMapper.save(banner) : bannerMapper.update(banner);
+
+            return count > 0 ? new Expection(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage()):
+                    new Expection(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
+
+            /*if (count > 0) {
+                return
             }else {
-                return new Expection(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
-            }
+                return
+            }*/
         }catch (Exception e) {
             e.printStackTrace();
             return new Expection(StateCode.OPERATION_ERROR.getCode(),StateCode.OPERATION_ERROR.getMessage());
@@ -51,11 +56,13 @@ public class BannerServiceImpl implements BannerService {
     }
 
     @Override
-    public PageInfo findByPage(int currentPage, int pageSize) {
+    public PageInfo findByPage(Map<String,Object> map) {
+        int currentPage = (int) map.get("currentPage");
+        int pageSize = (int) map.get("pageSize");
         currentPage = currentPage <= 0 ? 1 : currentPage;
         pageSize = pageSize <= 0 ? 6 : pageSize;
         PageHelper.startPage(currentPage,pageSize);
-        List<Banner> bannerList = bannerMapper.findAll();
+        List<Banner> bannerList = bannerMapper.search(map);
         PageInfo pageInfo = new PageInfo(bannerList);
         return  pageInfo;
     }

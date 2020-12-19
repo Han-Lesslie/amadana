@@ -40,7 +40,7 @@
               </el-option> </el-select
           ></span>
         </el-form-item>
-        <el-form-item label="上传图片" prop="bannerUrl">
+        <el-form-item label="展示图片" prop="bannerUrl">
           <el-upload
             class="upload-demo"
             action="/api/setFileUpload"

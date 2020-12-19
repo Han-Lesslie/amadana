@@ -47,9 +47,8 @@ public class VideoController {
             Map<String, Object> result = fileUploadService.uploadVideo(file);
             if ((int)result.get("code") == 200) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),result);
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }catch (Exception e) {
             e.printStackTrace();
             return new ResponseResult(StateCode.OPERATION_ERROR.getCode(),StateCode.OPERATION_ERROR.getMessage());
@@ -63,9 +62,8 @@ public class VideoController {
             Map<String, Object> result = fileUploadService.uploadPicture(file);
             if ((int)result.get("code") == 200) {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage(),result);
-            }else {
-                return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
             }
+            return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
         }catch (Exception e) {
             e.printStackTrace();
             return new ResponseResult(StateCode.OPERATION_ERROR.getCode(),StateCode.OPERATION_ERROR.getMessage());
@@ -118,9 +116,8 @@ public class VideoController {
             PageInfo pageInfo = videoService.listVideo(currentPage,pageSize);
             return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage()
                     , (int) pageInfo.getTotal(),pageInfo.getList());
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     /**
@@ -156,9 +153,8 @@ public class VideoController {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
             }
             return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
 
@@ -182,9 +178,8 @@ public class VideoController {
                 return new ResponseResult(StateCode.SUCCESS.getCode(),StateCode.SUCCESS.getMessage());
             }
             return new ResponseResult(StateCode.FAILED.getCode(),StateCode.FAILED.getMessage());
-        }else {
-            return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
         }
+        return new ResponseResult(StateCode.UNAUTHORIZED.getCode(),StateCode.UNAUTHORIZED.getMessage());
     }
 
     @RequestMapping(value ="/getFileSrc" ,method = RequestMethod.GET)

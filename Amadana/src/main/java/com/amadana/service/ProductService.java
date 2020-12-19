@@ -10,7 +10,7 @@ public interface ProductService {
 
     boolean saveProduct(Product product);
 
-    PageInfo findAdd(int currentPage,int pageSize);
+    PageInfo findProducts(Map<String,Object> map);
 
     boolean deleteProuct(Product product);
     List<Product> findByProductId(Integer id);

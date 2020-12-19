@@ -67,12 +67,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PageInfo findAdd(int currentPage, int pageSize) {
+    public PageInfo findProducts(Map<String,Object> map) {
+        int currentPage = (int) map.get("currentPage");
+        int pageSize = (int) map.get("pageSize");
         currentPage = currentPage <= 0 ? 1 : currentPage;
         pageSize = pageSize <= 0 ? 5 : pageSize;
         PageHelper.startPage(currentPage,pageSize);
         try {
-            List<Product> productList = productMapper.findAll();
+            List<Product> productList = productMapper.search(map);
             if (productList.size() != 0) {
                 return new PageInfo(productList);
             }

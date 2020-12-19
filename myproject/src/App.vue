@@ -1,13 +1,13 @@
 <template>
   <div id="app">
-    <router-view v-if="isRouterAlive"/>
+    <router-view/>
   </div>
 </template>
 
 <script>
 export default {
   name: 'App',
-  provide() {
+  /*provide() {
     return {
       reload: this.reload
     }
@@ -24,7 +24,7 @@ export default {
         this.isRouterAlive = true;
       })
     }
-  },
+  },*/
 }
 </script>
 
@@ -36,4 +36,8 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
+/*进度条颜色*/
+  #nprogress .bar {
+    background: red !important;
+  }
 </style>

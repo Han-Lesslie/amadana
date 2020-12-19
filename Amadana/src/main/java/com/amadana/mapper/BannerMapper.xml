@@ -32,6 +32,14 @@
         select id,img_position,image_name,img,
          img_order from tb_images where status = 1 order by img_order
     </select>
+    <!-- 最新版的图片分页  -->
+    <select id="search" parameterType="map" resultMap="bannerMapper">
+         select id,img_position,image_name,img,
+         img_order from tb_images where status = 1
+         <if test="position != null and position != ''">
+            and img_position like '%${position}%'
+         </if>
+    </select>
     <!--    删除图片-->
     <delete id="delete" parameterType="int">
         delete from tb_images where id = #{id}
@@ -79,6 +87,8 @@
     </update>
 
     <select id="getBanners" resultMap="bannerMapper">
-        select id,img from tb_images where status = 1 limit 5
+        select id,img from tb_images where status = 1 order by updateTime desc limit 5
     </select>
+
+
 </mapper>

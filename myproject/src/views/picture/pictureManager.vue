@@ -88,7 +88,6 @@
 <script>
 export default {
   name: "pictureManager",
-  inject: ["reload"],
   data() {
     return {
       bannerData: [],
@@ -110,10 +109,7 @@ export default {
           label: "首页创意空间"
         }
       ],
-      value: "",
-      preList: [
-        "https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg"
-      ]
+      value: ""
     };
   },
   created() {
@@ -126,9 +122,6 @@ export default {
     }
   },
   methods: {
-    refresh() {
-      this.reload()
-    },
     addpicture() {
       this.$router.push({ path: "/addPicture" });
     },
@@ -140,14 +133,12 @@ export default {
         })
         return false;
       }else {
-        this.flag = true;
-        this.change(this.currentPage,this.pageSize,this.flag,this.value);
+        this.change(this.currentPage,this.pageSize);
       }
     },
     reset() {
       this.value = "";
-      this.flag = false;
-      this.change(this.currentPage,this.pageSize,this.flag,this.value);
+      this.change(this.currentPage,this.pageSize);
     },
     remove(data) {
       this.$confirm("确定删除吗?").then(_=>{
@@ -163,9 +154,6 @@ export default {
                 type:"success",
                 message:"删除成功!"
               });
-              //this.$router.push("/pictureManager");
-             //this.refresh()
-             //this.$router.push("/empty")
              this.change(this.currentPage,this.pageSize,this.flag,this.value);
             }else if(res.data.code === 405){
               this.$message({
@@ -193,34 +181,26 @@ export default {
     },
     // 处理分页
     handleCurrentChange(page) {
-      this.change(page, this.pageSize,this.flag,this.value);
+      this.change(page, this.pageSize);
     },
     //请求分页
-    change(currentPage, pageSize,flag,imgPosition) {
+    change(currentPage, pageSize) {
       this.currentPage = currentPage;
-      //alert(this)
-      if (!flag) {
-         this.$http
-        .get(
-          "/api/getBanner?currentPage=" + currentPage + "&pageSize=" + pageSize,{headers:{"token":this.token}}
-        )
-        .then(res => {
-          this.bannerData = res.data.list;
-          for (let i=0;i<this.bannerData.length;i++) {
-            let imgList = [];
-            imgList.push(this.bannerData[i].bannerUrl);
-            this.bannerData[i].imgList = imgList;
-          }
-          this.total = res.data.count;
-          
-        });
-      }else {
-        this.$http.get("/api/searchImg?currentPage="+currentPage+"&pageSize="+pageSize+"&imgPosition="+imgPosition,{headers:{"token":this.token}})
+      let map = {};
+      map.currentPage = currentPage;
+      map.pageSize = pageSize;
+      map.position = this.value;
+
+      this.$http.post("/api/getBanner",JSON.stringify(map),{headers:{"token":this.token}})
         .then(res=>{
           if (res.data.code === 200) {
             this.total = res.data.count;
             this.bannerData = res.data.list;
-            console.log(this.bannerData.length)
+            for (let i=0;i<this.bannerData.length;i++) {
+            let imgList = [];
+            imgList.push(this.bannerData[i].bannerUrl);
+            this.bannerData[i].imgList = imgList;
+          }
           }else if(res.data.code === 405){
             this.$message({
               type:"error",
@@ -232,10 +212,9 @@ export default {
               type:"success",
               message:"暂无数据"
             });
-            this.change(this.currentPage,this.pageSize,false,"");
+            this.change(this.currentPage,this.pageSize);
           }
         });
-      }
     }
   }
 };

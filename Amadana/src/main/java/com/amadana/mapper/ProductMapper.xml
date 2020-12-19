@@ -88,6 +88,7 @@
         from tb_product as p
         left join tb_product_detail as pd on p.id = pd.product_id where p.id = #{id}
     </select>
+
     <select id="findAll" resultMap="productMapper">
         <include refid="all"></include>
     </select>

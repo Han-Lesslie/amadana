@@ -22,11 +22,16 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleMapper articleMapper;
     @Autowired
     private FileUploadService fileUploadService;
+
     @Override
     public boolean saveArticle(Article article) {
-        Date currentTime = new Date();
-        article.setCreateDate(DateFormat.dateFormat(currentTime));
-        int count = articleMapper.saveArticle(article);
+
+        int count = 0;
+        if (article.getId() != null) {
+            count = articleMapper.update(article);
+        }else {
+            count = articleMapper.saveArticle(article);
+        }
         return count <= 0 ? false : true;
     }
 

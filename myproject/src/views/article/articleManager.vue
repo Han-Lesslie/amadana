@@ -82,8 +82,7 @@
             <span class="box">文章管理 / 文章详情</span>
           </div>
         </div>
-        <div class="articleDetail" v-loading="loading"
-        element-loading-text="拼命加载中">
+        <div class="articleDetail">
           <h3>{{ article.title }}</h3>
           <p>作者: {{ article.author }}</p>
           <p>发布时间: {{ article.updateDate }}</p>
@@ -97,6 +96,9 @@
 </template>
 
 <script>
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
 export default {
   name: "articleManager",
   inject: ['reload'],
@@ -135,12 +137,12 @@ export default {
     view(id) {
       //this.$router.push({ name: "articleView", params: { data: data } });
       this.dialogVisible = true;
-      this.loading = true;
+      NProgress.start();
       this.$http.get("/api/getArticleByid?id="+id,{headers:{"token":this.token}})
       .then(res =>{
         if (res.data.code === 200) {
           this.article = res.data.data;
-          this.loading = false;
+          NProgress.done();
         }else if (res.data.code === 405) {
           this.$message({
             type:"error",

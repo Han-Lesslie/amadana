@@ -46,7 +46,7 @@
             <el-menu
               default-active="1-1"
               class="el-menu-vertical-demo"
-              style="min-height:740px;"
+              style="height:calc(100vh - 60px);"
               background-color="rgba(51, 51, 51, 1)"
               text-color="white"
               active-text-color="rgb(255, 51, 0)"
